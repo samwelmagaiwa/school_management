@@ -11,6 +11,27 @@
     <title> @yield('page_title') | {{ config('app.name') }} </title>
 
     @include('partials.inc_top')
+    <style>
+        body { padding-top: 3.5rem; }
+        .navbar.fixed-top { transition: all 0.3s ease-in-out; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .page-header { 
+            position: sticky; 
+            top: 3.5rem; 
+            z-index: 900; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid #ddd;
+        }
+        @media (min-width: 768px) {
+            .sidebar { 
+                top: 3.5rem; 
+                height: calc(100vh - 3.5rem); 
+                position: sticky; 
+                z-index: 950;
+            }
+        }
+    </style>
 </head>
 
 <body class="{{ in_array(Route::currentRouteName(), ['payments.invoice', 'marks.tabulation', 'marks.show', 'ttr.manage', 'ttr.show']) ? 'sidebar-xs' : '' }}">
