@@ -22,6 +22,10 @@ class DatabaseSeeder extends Seeder
         $this->call(NationalitiesTableSeeder::class);
         $this->call(StatesTableSeeder::class);
         $this->call(LgasTableSeeder::class);
+
+        // Load full Tanzania location hierarchy from CSV files
+        $this->call(TanzaniaLocationsFromCsvSeeder::class);
+
         $this->call(SettingsTableSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(SubjectsTableSeeder::class);

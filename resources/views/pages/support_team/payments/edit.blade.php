@@ -35,9 +35,14 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="amount" class="col-lg-3 col-form-label font-weight-semibold">Amount (<del style="text-decoration-style: double">N</del>) </label>
+                            <label for="amount" class="col-lg-3 col-form-label font-weight-semibold">Amount ({{ Qs::currencyUnit() }})</label>
                             <div class="col-lg-9">
-                                <input disabled class="form-control" value="{{ $payment->amount }}" id="amount" type="text">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text font-weight-semibold">{{ Qs::currencyUnit() }}</span>
+                                    </div>
+                                    <input disabled class="form-control" value="{{ number_format($payment->amount, 2) }}" id="amount" type="text" placeholder="0.00">
+                                </div>
                             </div>
                         </div>
 

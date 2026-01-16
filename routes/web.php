@@ -20,6 +20,11 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     /*************** Support Team *****************/
+    // Student self-service routes
+    Route::group(['namespace' => 'Student'], function () {
+        Route::get('/my_attendance', 'AttendanceController@index')->name('student.attendance');
+    });
+
     Route::group(['namespace' => 'SupportTeam',], function(){
 
         /*************** Students *****************/
@@ -104,6 +109,84 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('/', 'PinController@destroy')->name('pins.destroy');
         });
 
+        /*************** Activity Logs *****************/
+        Route::get('activity/logs', 'ActivityLogController@index')->name('activity.logs.index')->middleware('teamSA');
+
+        /*************** Library *****************/
+        Route::group(['prefix' => 'library', 'as' => 'library.'], function () {
+
+            Route::resource('books', 'BookController');
+            Route::post('books/{book}/copies', 'BookController@storeCopies')->name('books.copies.store');
+            Route::put('copies/{copy}/status', 'BookController@updateCopyStatus')->name('copies.status.update');
+            Route::delete('copies/{copy}', 'BookController@destroyCopy')->name('copies.destroy');
+
+            // Book categories management
+            Route::get('categories', 'BookCategoryController@index')->name('categories.index');
+            Route::post('categories', 'BookCategoryController@store')->name('categories.store');
+            Route::put('categories/{category}', 'BookCategoryController@update')->name('categories.update');
+            Route::delete('categories/{category}', 'BookCategoryController@destroy')->name('categories.destroy');
+
+            Route::group(['prefix' => 'loans', 'as' => 'loans.'], function () {
+                Route::get('/', 'BookLoanController@index')->name('index')->middleware('libraryManager');
+                Route::get('overdue', 'BookLoanController@overdue')->name('overdue')->middleware('libraryManager');
+                Route::get('my', 'BookLoanController@myLoans')->name('my');
+                Route::get('children', 'BookLoanController@childrenLoans')->name('children');
+                Route::get('{loan}', 'BookLoanController@show')->name('show')->middleware('libraryManager');
+                Route::post('/', 'BookLoanController@store')->name('store')->middleware('libraryManager');
+                Route::post('{loan}/return', 'BookLoanController@return')->name('return')->middleware('libraryManager');
+                Route::post('{loan}/waive', 'BookLoanController@waiveFine')->name('waive')->middleware('libraryManager');
+                Route::post('{loan}/force-close', 'BookLoanController@forceClose')->name('force_close')->middleware('libraryManager');
+                Route::post('{loan}/reverse', 'BookLoanController@reverse')->name('reverse')->middleware('libraryManager');
+            });
+
+            Route::group(['prefix' => 'requests', 'as' => 'requests.'], function () {
+                Route::get('/', 'BookRequestController@index')->name('index')->middleware('libraryManager');
+                Route::get('my', 'BookRequestController@myRequests')->name('my');
+                Route::post('/', 'BookRequestController@store')->name('store');
+                Route::post('{bookRequest}/approve', 'BookRequestController@approve')->name('approve')->middleware('libraryManager');
+                Route::post('{bookRequest}/reject', 'BookRequestController@reject')->name('reject')->middleware('libraryManager');
+                Route::post('{bookRequest}/cancel', 'BookRequestController@cancel')->name('cancel');
+            });
+        });
+
+        /*************** Attendance *****************/
+        Route::group(['prefix' => 'attendance', 'as' => 'attendance.'], function () {
+
+            // Session lifecycle
+            Route::get('sessions', 'AttendanceSessionController@index')->name('sessions.index');
+            Route::post('sessions', 'AttendanceSessionController@store')->name('sessions.store');
+            Route::get('sessions/{session}', 'AttendanceSessionController@show')->name('sessions.show');
+
+            // Marking & submission
+            Route::get('sessions/{session}/mark', 'AttendanceMarkController@mark')->name('sessions.mark');
+            Route::post('sessions/{session}/records', 'AttendanceMarkController@storeRecords')->name('sessions.records.store');
+            Route::post('sessions/{session}/submit', 'AttendanceMarkController@submit')->name('sessions.submit');
+
+            // Admin overrides
+            Route::post('sessions/{session}/unlock', 'AttendanceAdminController@unlock')->name('sessions.unlock');
+            Route::put('records/{record}/override', 'AttendanceAdminController@overrideRecord')->name('records.override');
+
+            // Reports
+            // Reports (HTML + JSON)
+            Route::get('reports', 'AttendanceReportController@reportsIndex')->name('reports.index');
+            Route::get('reports/student', 'AttendanceReportController@studentReportPage')->name('reports.student_page');
+            Route::get('reports/class', 'AttendanceReportController@classReportPage')->name('reports.class_page');
+
+            // JSON API endpoints (kept for programmatic use)
+            Route::get('reports/student/{student}', 'AttendanceReportController@studentReport')->name('reports.student');
+            Route::get('reports/class/{class}/{section}', 'AttendanceReportController@classReport')->name('reports.class');
+            Route::get('reports/teacher-compliance', 'AttendanceReportController@teacherCompliance')->name('reports.teacher_compliance');
+        });
+
+        /*************** Marks *****************/
+        // Departments (HOD / admin management)
+        Route::group(['prefix' => 'departments', 'middleware' => 'teamSA'], function () {
+            Route::get('/', 'DepartmentController@index')->name('departments.index');
+            Route::post('/', 'DepartmentController@store')->name('departments.store');
+            Route::put('{department}', 'DepartmentController@update')->name('departments.update');
+            Route::delete('{department}', 'DepartmentController@destroy')->name('departments.destroy');
+        });
+
         /*************** Marks *****************/
         Route::group(['prefix' => 'marks'], function(){
 
@@ -153,6 +236,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('get_lga/{state_id}', 'AjaxController@get_lga')->name('get_lga');
         Route::get('get_wards/{lga_id}', 'AjaxController@get_wards')->name('get_wards');
         Route::get('get_villages/{ward_id}', 'AjaxController@get_villages')->name('get_villages');
+        Route::get('get_places/{village_id}', 'AjaxController@get_places')->name('get_places');
         Route::get('get_class_sections/{class_id}', 'AjaxController@get_class_sections')->name('get_class_sections');
         Route::get('get_class_subjects/{class_id}', 'AjaxController@get_class_subjects')->name('get_class_subjects');
     });
@@ -171,5 +255,6 @@ Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix
 Route::group(['namespace' => 'MyParent','middleware' => 'my_parent',], function(){
 
     Route::get('/my_children', 'MyController@children')->name('my_children');
+    Route::get('/my_children/attendance', 'MyController@childAttendance')->name('my_children.attendance');
 
 });

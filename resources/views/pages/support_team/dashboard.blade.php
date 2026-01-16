@@ -50,6 +50,18 @@
         .text-indigo { color: #3949ab !important; }
         .text-warning { color: #ef6c00 !important; }
         .text-teal { color: #00695c !important; }
+        .chart-tile {
+            border: 1px solid rgba(0,0,0,.06);
+            border-radius: .65rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,.05);
+            background: #fff;
+            height: 100%;
+        }
+        .chart-canvas {
+            width: 100%;
+            height: 320px;
+        }
     </style>
 
     @if(Qs::userIsTeamSA())
@@ -83,8 +95,46 @@
         </div>
     @endif
 
-    {{--Events Calendar Begins--}}
+    {{--Statistics Charts Begins--}}
     <div class="card">
+        <div class="card-header header-elements-inline">
+            <h5 class="card-title">Performance Insights</h5>
+            {!! Qs::getPanelOptions() !!}
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="chart-tile h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="text-muted text-uppercase font-size-xs mb-1">Enrollment Overview</p>
+                                <h6 class="font-weight-semibold mb-0">New vs Returning Students</h6>
+                            </div>
+                            <span class="badge badge-pill badge-light">This Term</span>
+                        </div>
+                        <div id="enrollment_bar_chart" class="chart-canvas"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="chart-tile h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <p class="text-muted text-uppercase font-size-xs mb-1">Attendance Trends</p>
+                                <h6 class="font-weight-semibold mb-0">Average Daily Presence</h6>
+                            </div>
+                            <span class="badge badge-pill badge-light">Last 6 Months</span>
+                        </div>
+                        <div id="attendance_multi_line_chart" class="chart-canvas"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{--Statistics Charts Ends--}}
+
+    {{--Events Calendar Begins--}}
+    <div class="card mt-4">
         <div class="card-header header-elements-inline">
             <h5 class="card-title">School Events Calendar</h5>
          {!! Qs::getPanelOptions() !!}
@@ -95,4 +145,72 @@
         </div>
     </div>
     {{--Events Calendar Ends--}}
-    @endsection
+@endsection
+
+@php
+    $demoEnrollment = [
+        'labels' => ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        'new' => [25, 32, 41, 38],
+        'returning' => [42, 39, 45, 48],
+    ];
+
+    $attendanceTrend = [
+        'months' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        'junior' => [88, 91, 90, 93, 95, 96],
+        'senior' => [85, 87, 89, 88, 90, 92],
+    ];
+@endphp
+
+@section('scripts')
+    @parent
+    <script src="{{ asset('global_assets/js/plugins/visualization/echarts/echarts.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var enrollmentChartEl = document.getElementById('enrollment_bar_chart');
+            var attendanceChartEl = document.getElementById('attendance_multi_line_chart');
+
+            if (typeof echarts === 'undefined') {
+                console.warn('ECharts is required for dashboard charts.');
+                return;
+            }
+
+            if (enrollmentChartEl) {
+                var enrollmentChart = echarts.init(enrollmentChartEl);
+                var enrollmentData = @json($demoEnrollment);
+                enrollmentChart.setOption({
+                    color: ['#42a5f5', '#ef6c00'],
+                    grid: { left: 0, right: 0, top: 20, bottom: 0, containLabel: true },
+                    tooltip: { trigger: 'axis', backgroundColor: 'rgba(0,0,0,0.75)', padding: [10, 15] },
+                    legend: { data: ['New', 'Returning'] },
+                    xAxis: [{
+                        type: 'category',
+                        data: enrollmentData.labels,
+                        axisTick: { alignWithLabel: true }
+                    }],
+                    yAxis: [{ type: 'value', axisLabel: { formatter: '{value} students' } }],
+                    series: [
+                        { name: 'New', type: 'bar', barWidth: '35%', data: enrollmentData.new },
+                        { name: 'Returning', type: 'bar', barWidth: '35%', data: enrollmentData.returning }
+                    ]
+                });
+            }
+
+            if (attendanceChartEl) {
+                var attendanceChart = echarts.init(attendanceChartEl);
+                var attendanceData = @json($attendanceTrend);
+                attendanceChart.setOption({
+                    color: ['#00bcd4', '#5c6bc0'],
+                    tooltip: { trigger: 'axis', backgroundColor: 'rgba(0,0,0,0.75)', padding: [10, 15] },
+                    legend: { data: ['Junior School', 'Senior School'] },
+                    grid: { left: 0, right: 0, top: 30, bottom: 0, containLabel: true },
+                    xAxis: [{ type: 'category', boundaryGap: false, data: attendanceData.months }],
+                    yAxis: [{ type: 'value', axisLabel: { formatter: '{value}%' } }],
+                    series: [
+                        { name: 'Junior School', type: 'line', smooth: true, areaStyle: { opacity: 0.05 }, data: attendanceData.junior },
+                        { name: 'Senior School', type: 'line', smooth: true, areaStyle: { opacity: 0.05 }, data: attendanceData.senior }
+                    ]
+                });
+            }
+        });
+    </script>
+@endsection

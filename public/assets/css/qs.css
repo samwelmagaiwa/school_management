@@ -2,3 +2,106 @@
     border: 1px solid #000;
     border-collapse: collapse;
 }
+
+/* Make all sidebar cards share the same dark background as the sidebar itself,
+   so bottom items like Activity Logs and My Account don't sit on a lighter grey. */
+.sidebar.sidebar-dark .card.card-sidebar-mobile {
+    background-color: transparent;
+}
+
+/* Force the main dark sidebar background on the sidebar container and its scrollable content.
+   Use !important to win over any conflicting theme rules that might differ per viewport. */
+.sidebar-main.sidebar-dark,
+.sidebar-main.sidebar-dark .sidebar-content {
+    background-color: #263238 !important;
+}
+
+/* Keep individual nav links transparent so the dark background shows through. */
+.sidebar.sidebar-dark .nav-sidebar .nav-link {
+    background-color: transparent;
+}
+
+/*
+ * Keep the main sidebar fixed while the content area scrolls.
+ * Only enforce this on tablet/desktop so the mobile drawer behaviour stays intact.
+ */
+@media (min-width: 768px) {
+    .sidebar.sidebar-main {
+        position: fixed;
+        top: 3.5rem; /* align with fixed navbar offset */
+        bottom: 0;
+        left: 0;
+        height: auto;
+        z-index: 1030;
+        width: 16.875rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar.sidebar-main .sidebar-content {
+        position: relative;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .page-content {
+        margin-left: 16.875rem;
+        position: relative;
+    }
+
+    .sidebar-content-flex {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .sidebar-section {
+        flex: 0 0 auto;
+    }
+
+    .sidebar-section-scroll {
+        flex: 1 1 auto;
+        min-height: 0; /* allow flex item to shrink for overflow */
+    }
+
+    .sidebar-nav-scroll {
+        max-height: 100%;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .sidebar-menu-card,
+    .sidebar-menu-card .card-body {
+        height: 100%;
+    }
+
+    .sidebar-section-footer {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-footer-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+    body.sidebar-xs .sidebar.sidebar-main {
+        width: 3.5rem;
+    }
+
+    body.sidebar-xs .sidebar.sidebar-main .sidebar-content {
+        width: 3.5rem;
+    }
+
+    body.sidebar-xs .page-content {
+        margin-left: 3.5rem;
+    }
+}

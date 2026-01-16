@@ -20,8 +20,9 @@ class ClassCreate extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3',
+            'name'          => 'required|string|min:3',
             'class_type_id' => 'required|exists:class_types,id',
+            'department_id' => 'nullable|integer|exists:departments,id',
         ];
     }
 

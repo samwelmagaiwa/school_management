@@ -1,5 +1,14 @@
 <script>
 
+    const AppCurrencyUnit = '{{ Qs::currencyUnit() }}';
+    const formatCurrency = function(value) {
+        var numeric = parseFloat(value);
+        if (isNaN(numeric)) {
+            numeric = 0;
+        }
+        return AppCurrencyUnit + ' ' + numeric.toFixed(2);
+    };
+
     function getStatesByCountry(nal_id){
         var url = '{{ route('get_states', [':id']) }}';
         url = url.replace(':id', nal_id);
@@ -219,6 +228,49 @@
         });
     }
 
+    function confirmLoanAction(button, action) {
+        var form = $(button).closest('form');
+        var messages = {
+            'return': {
+                title: 'Mark as returned?',
+                text: 'This will mark the selected copy as returned and compute any fines based on the due date.'
+            },
+            'force_close': {
+                title: 'Force close this loan?',
+                text: 'This will close the loan even if there are issues. Use only for exceptional cases.'
+            },
+            'reverse': {
+                title: 'Reverse this loan?',
+                text: 'This will reset the loan status, clear fines and set the copy back to available. Use with extreme care.'
+            }
+        };
+
+        var cfg = messages[action] || messages['return'];
+
+        swal({
+            title: cfg.title,
+            text: cfg.text,
+            icon: 'warning',
+            buttons: {
+                cancel: {
+                    text: 'Cancel',
+                    visible: true,
+                    className: 'btn btn-light'
+                },
+                confirm: {
+                    text: 'Yes',
+                    closeModal: true,
+                    className: 'btn btn-primary'
+                }
+            },
+            dangerMode: (action === 'force_close' || action === 'reverse')
+        }).then(function(confirmed){
+            if (confirmed) {
+                form.submit();
+            }
+        });
+    }
+
     $('form#ajax-reg').on('submit', function(ev){
         ev.preventDefault();
         submitForm($(this), 'store');
@@ -237,16 +289,16 @@
         var input = $('#val-'+form_id);
 
         // Get Values
-        var amt = parseInt(td_amt.data('amount'));
-        var amt_paid = parseInt(td_amt_paid.data('amount'));
-        var amt_input = parseInt(input.val());
+        var amt = parseFloat(td_amt.data('amount'));
+        var amt_paid = parseFloat(td_amt_paid.data('amount'));
+        var amt_input = parseFloat(input.val());
 
-//        Update Values
+        // Update Values
         amt_paid = amt_paid + amt_input;
         var bal = amt - amt_paid;
 
-        td_bal.text(''+bal);
-        td_amt_paid.text(''+amt_paid).data('amount', ''+amt_paid);
+        td_bal.text(formatCurrency(bal));
+        td_amt_paid.text(formatCurrency(amt_paid)).data('amount', ''+amt_paid);
         input.attr('max', bal);
         bal < 1 ? $('#'+form_id).fadeOut('slow').remove() : '';
     });

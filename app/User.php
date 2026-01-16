@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -26,7 +27,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-'name', 'username', 'email', 'phone', 'phone2', 'dob', 'gender', 'photo', 'address', 'ward', 'street', 'bg_id', 'password', 'nal_id', 'state_id', 'lga_id', 'code', 'user_type', 'email_verified_at'
+'name', 'username', 'email', 'phone', 'phone2', 'dob', 'gender', 'photo', 'address', 'ward', 'street', 'bg_id', 'password', 'nal_id', 'state_id', 'lga_id', 'code', 'user_type', 'email_verified_at', 'last_seen_at'
     ];
 
     /**
@@ -36,6 +37,10 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password', 'remember_token',
+    ];
+
+    protected $casts = [
+        'last_seen_at' => 'datetime',
     ];
 
     public function getPhotoAttribute($value)
@@ -104,5 +109,15 @@ class User extends Authenticatable
     public function staff()
     {
         return $this->hasMany(StaffRecord::class);
+    }
+
+    public function getIsOnlineAttribute(): bool
+    {
+        return Cache::has($this->onlineCacheKey());
+    }
+
+    protected function onlineCacheKey(): string
+    {
+        return sprintf('user-online-%d', $this->id);
     }
 }

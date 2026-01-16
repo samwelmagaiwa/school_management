@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SupportTeam;
 use App\Helpers\Qs;
 use App\Http\Requests\MyClass\ClassCreate;
 use App\Http\Requests\MyClass\ClassUpdate;
+use App\Models\Department;
 use App\Repositories\MyClassRepo;
 use App\Repositories\UserRepo;
 use App\Http\Controllers\Controller;
@@ -24,8 +25,9 @@ class MyClassController extends Controller
 
     public function index()
     {
-        $d['my_classes'] = $this->my_class->all();
+        $d['my_classes']  = $this->my_class->all();
         $d['class_types'] = $this->my_class->getTypes();
+        $d['departments'] = Department::orderBy('name')->get();
 
         return view('pages.support_team.classes.index', $d);
     }
@@ -56,7 +58,7 @@ class MyClassController extends Controller
 
     public function update(ClassUpdate $req, $id)
     {
-        $data = $req->only(['name']);
+        $data = $req->only(['name', 'class_type_id', 'department_id']);
         $this->my_class->update($id, $data);
 
         return Qs::jsonUpdateOk();

@@ -19,7 +19,7 @@ class NationalitiesTableSeeder extends Seeder
         );
 
         foreach ($nationals as $n) {
-            Nationality::create(['name' => $n]);
+            Nationality::firstOrCreate(['name' => $n]);
         }
     }
 }

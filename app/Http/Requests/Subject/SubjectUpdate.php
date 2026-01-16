@@ -21,10 +21,11 @@ class SubjectUpdate extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3',
-            'my_class_id' => 'required',
-            'teacher_id' => 'sometimes|nullable|exists:users,id',
-            'slug' => 'nullable|string|min:3',
+            'name'          => 'required|string|min:3',
+            'my_class_id'   => 'required',
+            'teacher_id'    => 'sometimes|nullable|exists:users,id',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'slug'          => 'nullable|string|min:3',
         ];
     }
 

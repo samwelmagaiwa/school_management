@@ -82,8 +82,8 @@
                     <td>{{ $payment->title }}</td>
                 </tr>
                 <tr>
-                    <td class="bold">AMOUNT:</td>
-                    <td>{{ $payment->amount }}</td>
+                    <td class="bold">AMOUNT ({{ Qs::currencyUnit() }}):</td>
+                    <td>{{ Qs::formatCurrency($payment->amount) }}</td>
                     <td class="bold">DESCRIPTION:</td>
                     <td>{{ $payment->description }}</td>
                 </tr>
@@ -98,16 +98,16 @@
            <thead>
            <tr>
                <td class="bold">Date</td>
-               <td class="bold">Amount Paid <del style="text-decoration-style: double">N</del></td>
-               <td class="bold">Balance <del style="text-decoration-style: double">N</del></td>
+               <td class="bold">Amount Paid ({{ Qs::currencyUnit() }})</td>
+               <td class="bold">Balance ({{ Qs::currencyUnit() }})</td>
            </tr>
            </thead>
             <tbody>
             @foreach($receipts as $r)
                 <tr>
                     <td>{{ date('D\, j F\, Y', strtotime($r->created_at)) }}</td>
-                    <td>{{ $r->amt_paid }}</td>
-                    <td>{{ $r->balance }}</td>
+                    <td>{{ Qs::formatCurrency($r->amt_paid) }}</td>
+                    <td>{{ Qs::formatCurrency($r->balance) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -119,7 +119,7 @@
                 <span  style="font-size: 16px;">{{ $pr->paid ? 'PAYMENT STATUS' : 'TOTAL DUE' }}</span>
             </div>
             <div  style="padding: 10px 20px; width: 200px; background-color: lightyellow;">
-                <span  style="font-size: 25px;">{{ $pr->paid ? 'CLEARED' : $pr->balance }}</span>
+                <span  style="font-size: 25px;">{{ $pr->paid ? 'CLEARED' : Qs::formatCurrency($pr->balance) }}</span>
             </div>
         </div>
         <div class="clear"></div>

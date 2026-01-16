@@ -66,7 +66,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Title</th>
-                                <th>Amount</th>
+                                <th>Amount ({{ Qs::currencyUnit() }})</th>
                                 <th>Ref_No</th>
                                 <th>Class</th>
                                 <th>Method</th>
@@ -79,7 +79,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $p->title }}</td>
-                                    <td>{{ $p->amount }}</td>
+                                    <td>{{ Qs::formatCurrency($p->amount) }}</td>
                                     <td>{{ $p->ref_no }}</td>
                                     <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
                                     <td>{{ ucwords($p->method) }}</td>
@@ -115,7 +115,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Title</th>
-                                <th>Amount</th>
+                                <th>Amount ({{ Qs::currencyUnit() }})</th>
                                 <th>Ref_No</th>
                                 <th>Class</th>
                                 <th>Method</th>
@@ -128,7 +128,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $p->title }}</td>
-                                    <td>{{ $p->amount }}</td>
+                                    <td>{{ Qs::formatCurrency($p->amount) }}</td>
                                     <td>{{ $p->ref_no }}</td>
                                     <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
                                     <td>{{ ucwords($p->method) }}</td>

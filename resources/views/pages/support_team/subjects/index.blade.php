@@ -54,6 +54,20 @@
                                 </div>
 
                                 <div class="form-group row">
+                                    <label for="department_id" class="col-lg-3 col-form-label font-weight-semibold">Department</label>
+                                    <div class="col-lg-9">
+                                        <select name="department_id" id="department_id" class="form-control select">
+                                            <option value="">None</option>
+                                            @foreach(\App\Models\Department::orderBy('name')->get() as $dept)
+                                                <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                                                    {{ $dept->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
                                     <label for="teacher_id" class="col-lg-3 col-form-label font-weight-semibold">Teacher <span class="text-danger">*</span></label>
                                     <div class="col-lg-9">
                                         <select required data-placeholder="Select Teacher" class="form-control select-search" name="teacher_id" id="teacher_id">

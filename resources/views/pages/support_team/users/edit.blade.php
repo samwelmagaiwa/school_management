@@ -142,8 +142,19 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="street">Street / Village: <span class="text-danger">*</span></label>
-                                <select required data-placeholder="Choose.." class="select-search form-control" name="street" id="street">
+                                <select onchange="getPlaces(this.value)" required data-placeholder="Choose.." class="select-search form-control" name="street" id="street">
                                     <option value="{{ $village->id ?? $user->street }}">{{ $user->street }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="place_id">Places:</label>
+                                <select data-placeholder="Choose.." class="select-search form-control" name="place_id" id="place_id">
+                                    <option value="{{ $user->place_id ?? '' }}">{{ optional($user->place ?? null)->name ?? '' }}</option>
                                 </select>
                             </div>
                         </div>

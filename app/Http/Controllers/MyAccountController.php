@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Qs;
 use App\Http\Requests\UserChangePass;
 use App\Http\Requests\UserUpdate;
+use App\Repositories\LocationRepo;
 use App\Repositories\UserRepo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,15 +14,20 @@ use Illuminate\Support\Facades\Hash;
 class MyAccountController extends Controller
 {
     protected $user;
+    protected $loc;
 
-    public function __construct(UserRepo $user)
+    public function __construct(UserRepo $user, LocationRepo $loc)
     {
         $this->user = $user;
+        $this->loc = $loc;
     }
 
     public function edit_profile()
     {
         $d['my'] = Auth::user();
+        $d['nationals'] = $this->loc->getAllNationals();
+        $d['states'] = $this->loc->getAllStates();
+
         return view('pages.support_team.my_account', $d);
     }
 
@@ -29,7 +35,15 @@ class MyAccountController extends Controller
     {
         $user = Auth::user();
 
-        $d = $user->username ? $req->only(['email', 'phone', 'address']) : $req->only(['email', 'phone', 'address', 'username']);
+        // Build the list of fields we allow to be updated from the My Account form
+        $fields = ['email', 'phone', 'phone2', 'address', 'nal_id', 'state_id', 'lga_id', 'ward', 'street', 'place_id'];
+
+        // Only allow username to be set if the user does not yet have one
+        if (!$user->username) {
+            $fields[] = 'username';
+        }
+
+        $d = $req->only($fields);
 
         if(!$user->username && !$req->username && !$req->email){
             return back()->with('pop_error', __('msg.user_invalid'));

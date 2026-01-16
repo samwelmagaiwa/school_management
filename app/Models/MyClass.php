@@ -6,7 +6,12 @@ use Eloquent;
 
 class MyClass extends Eloquent
 {
-    protected $fillable = ['name', 'class_type_id'];
+    protected $fillable = ['name', 'class_type_id', 'department_id'];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     public function section()
     {

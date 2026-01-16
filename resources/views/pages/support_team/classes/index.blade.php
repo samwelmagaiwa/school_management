@@ -22,6 +22,7 @@
                                 <th>S/N</th>
                                 <th>Name</th>
                                 <th>Class Type</th>
+                                <th>Department</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -31,6 +32,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $c->name }}</td>
                                     <td>{{ $c->class_type->name }}</td>
+                                    <td>{{ optional($c->department)->name ?: '—' }}</td>
                                     <td class="text-center">
                                         <div class="list-icons">
                                             <div class="dropdown">
@@ -87,6 +89,20 @@
                                         <select required data-placeholder="Select Class Type" class="form-control select" name="class_type_id" id="class_type_id">
                                             @foreach($class_types as $ct)
                                                 <option {{ old('class_type_id') == $ct->id ? 'selected' : '' }} value="{{ $ct->id }}">{{ $ct->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="department_id" class="col-lg-3 col-form-label font-weight-semibold">Department</label>
+                                    <div class="col-lg-9">
+                                        <select name="department_id" id="department_id" class="form-control select">
+                                            <option value="">None</option>
+                                            @foreach($departments as $dept)
+                                                <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                                                    {{ $dept->name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>

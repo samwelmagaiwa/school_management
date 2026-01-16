@@ -40,6 +40,7 @@
                                     <div class="dropdown-menu dropdown-menu-left">
                                         <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> View Profile</a>
                                         <a target="_blank" href="{{ route('marks.year_selector', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-check"></i> Marksheet</a>
+                                        <a href="{{ route('my_children.attendance', ['child_id' => $s->user->id]) }}" class="dropdown-item"><i class="icon-calendar3"></i> Attendance</a>
 
                                     </div>
                                 </div>

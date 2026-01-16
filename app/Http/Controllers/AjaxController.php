@@ -65,6 +65,17 @@ class AjaxController extends Controller
         })->all();
     }
 
+    /**
+     * Get places for a given village/street.
+     */
+    public function get_places($village_id)
+    {
+        $places = $this->loc->getPlaces($village_id);
+        return $places->map(function ($q) {
+            return ['id' => $q->id, 'name' => $q->name];
+        })->all();
+    }
+
     public function get_class_sections($class_id)
     {
         $sections = $this->my_class->getClassSections($class_id);

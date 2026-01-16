@@ -22,9 +22,9 @@
                         <th>#</th>
                         <th>Title</th>
                         <th>Pay_Ref</th>
-                        <th>Amount</th>
-                        <th>Paid</th>
-                        <th>Balance</th>
+                        <th>Amount ({{ Qs::currencyUnit() }})</th>
+                        <th>Paid ({{ Qs::currencyUnit() }})</th>
+                        <th>Balance ({{ Qs::currencyUnit() }})</th>
                         <th>Pay Now</th>
                         <th>Receipt_No</th>
                         <th>Year</th>
@@ -39,13 +39,13 @@
                             <td>{{ $uc->payment->ref_no }}</td>
 
                             {{--Amount--}}
-                            <td class="font-weight-bold" id="amt-{{ Qs::hash($uc->id) }}" data-amount="{{ $uc->payment->amount }}">{{ $uc->payment->amount }}</td>
+                            <td class="font-weight-bold" id="amt-{{ Qs::hash($uc->id) }}" data-amount="{{ $uc->payment->amount }}">{{ Qs::formatCurrency($uc->payment->amount) }}</td>
 
                             {{--Amount Paid--}}
-                            <td id="amt_paid-{{ Qs::hash($uc->id) }}" data-amount="{{ $uc->amt_paid ?: 0 }}" class="text-blue font-weight-bold">{{ $uc->amt_paid ?: '0.00' }}</td>
+                            <td id="amt_paid-{{ Qs::hash($uc->id) }}" data-amount="{{ $uc->amt_paid ?: 0 }}" class="text-blue font-weight-bold">{{ Qs::formatCurrency($uc->amt_paid ?: 0) }}</td>
 
                             {{--Balance--}}
-                            <td id="bal-{{ Qs::hash($uc->id) }}" class="text-danger font-weight-bold">{{ $uc->balance ?: $uc->payment->amount }}</td>
+                            <td id="bal-{{ Qs::hash($uc->id) }}" class="text-danger font-weight-bold">{{ Qs::formatCurrency($uc->balance ?: $uc->payment->amount) }}</td>
 
                             {{--Pay Now Form--}}
                             <td>
@@ -101,7 +101,7 @@
                         <th>#</th>
                         <th>Title</th>
                         <th>Pay_Ref</th>
-                        <th>Amount</th>
+                        <th>Amount ({{ Qs::currencyUnit() }})</th>
                         <th>Receipt_No</th>
                         <th>Year</th>
                         <th>Action</th>
@@ -115,7 +115,7 @@
                             <td>{{ $cl->payment->ref_no }}</td>
 
                             {{--Amount--}}
-                            <td class="font-weight-bold">{{ $cl->payment->amount }}</td>
+                            <td class="font-weight-bold">{{ Qs::formatCurrency($cl->payment->amount) }}</td>
                             {{--Receipt No--}}
                             <td>{{ $cl->ref_no }}</td>
 

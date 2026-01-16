@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Setting;
 use App\Models\StudentRecord;
 use App\Models\Subject;
+use App\Models\Department;
 use Hashids\Hashids;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +52,17 @@ class Qs
                     <button type="button" class="close" data-dismiss="alert"><span>&times;</span><span class="sr-only">Close</span></button> '.
         $msg.'  </div>
                 ';
+    }
+
+    public static function currencyUnit(): string
+    {
+        return 'TZSH';
+    }
+
+    public static function formatCurrency($amount, $decimals = 2): string
+    {
+        $value = is_numeric($amount) ? number_format((float) $amount, $decimals) : $amount;
+        return self::currencyUnit().' '.$value;
     }
 
     public static function getTeamSA()
@@ -185,6 +197,22 @@ class Qs
     {
         $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'student', 'parent'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
+    }
+
+    /**
+     * Check if current user is Head of Department (has at least one department with head_id = user).
+     */
+    public static function userIsHOD(): bool
+    {
+        return Department::where('head_id', Auth::id())->exists();
+    }
+
+    /**
+     * Get IDs of departments where the current user is HOD.
+     */
+    public static function hodDepartmentIds(): array
+    {
+        return Department::where('head_id', Auth::id())->pluck('id')->all();
     }
 
     // Check if User is Head of Super Admins (Untouchable)

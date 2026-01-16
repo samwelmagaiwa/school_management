@@ -25,3 +25,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
+// Load places for a selected village/street
+function getPlaces(village_id) {
+    var $place = $('#place_id');
+    $place.empty();
+    $place.append('<option value=""></option>');
+
+    if (!village_id) {
+        return;
+    }
+
+    $.get('/ajax/get_places/' + village_id, function (data) {
+        if (Array.isArray(data)) {
+            data.forEach(function (item) {
+                $place.append('<option value="' + item.id + '">' + item.name + '</option>');
+            });
+        }
+
+        // Re-init Select2/Selectpicker if used
+        if ($place.hasClass('select-search')) {
+            $place.select2();
+        }
+    });
+}

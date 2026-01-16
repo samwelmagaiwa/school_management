@@ -19,6 +19,10 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        // Allow logout without requiring a CSRF token to avoid 419 errors
+        // if the token is missing or stale.
+        'logout',
+        // You can add more URIs here if needed, e.g. webhook endpoints.
+        // 'webhook/*',
     ];
 }
