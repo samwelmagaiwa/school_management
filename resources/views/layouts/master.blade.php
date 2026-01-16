@@ -12,23 +12,26 @@
 
     @include('partials.inc_top')
     <style>
+        /* Offset for fixed top navbar */
         body { padding-top: 3.5rem; }
-        .navbar.fixed-top { transition: all 0.3s ease-in-out; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .page-header { 
-            position: sticky; 
-            top: 3.5rem; 
-            z-index: 900; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid #ddd;
+
+        .navbar.fixed-top {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        /* Let the dashboard header scroll with the content so it doesn't cover cards */
+        .page-header {
+            position: relative;
+            top: 0;
+            z-index: 1;
+        }
+
         @media (min-width: 768px) {
-            .sidebar { 
-                top: 3.5rem; 
-                height: calc(100vh - 3.5rem); 
-                position: sticky; 
-                z-index: 950;
+            /* Keep sidebar below navbar but allow it to scroll normally */
+            .sidebar {
+                top: 3.5rem;
+                height: calc(100vh - 3.5rem);
             }
         }
     </style>
