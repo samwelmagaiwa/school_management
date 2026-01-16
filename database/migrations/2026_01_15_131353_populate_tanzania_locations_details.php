@@ -9,6 +9,12 @@ class PopulateTanzaniaLocationsDetails extends Migration
 {
     public function up()
     {
+        // This migration seeds richer TZ location data; skip entirely if
+        // the base states table (and country codes) are not yet present.
+        if (! Schema::hasTable('states')) {
+            return;
+        }
+
         $lgaTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
 
         // Get Tanzania States (Regions)

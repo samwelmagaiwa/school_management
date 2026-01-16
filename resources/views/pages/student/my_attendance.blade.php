@@ -51,14 +51,20 @@
         </div>
         <div class="card-body">
             <div class="row mb-2">
-                <div class="col-md-3"><strong>Total Sessions:</strong> {{ $summary['total'] }}</div>
-                <div class="col-md-3"><strong>Present:</strong> {{ $summary['present'] }}</div>
-                <div class="col-md-3"><strong>Absent:</strong> {{ $summary['absent'] }}</div>
-                <div class="col-md-3"><strong>Late:</strong> {{ $summary['late'] }}</div>
+                <div class="col-md-3"><strong>Total Sessions:</strong> <span class="badge badge-light">{{ $summary['total'] }}</span></div>
+                <div class="col-md-3"><strong>Present:</strong> <span class="badge badge-success">{{ $summary['present'] }}</span></div>
+                <div class="col-md-3"><strong>Absent:</strong> <span class="badge badge-danger">{{ $summary['absent'] }}</span></div>
+                <div class="col-md-3"><strong>Late:</strong> <span class="badge badge-warning">{{ $summary['late'] }}</span></div>
             </div>
             <div class="row mb-2">
-                <div class="col-md-3"><strong>Excused:</strong> {{ $summary['excused'] }}</div>
-                <div class="col-md-3"><strong>Percentage Present:</strong> {{ $summary['percentage'] !== null ? $summary['percentage'].'%' : 'N/A' }}</div>
+                <div class="col-md-3"><strong>Excused:</strong> <span class="badge badge-info">{{ $summary['excused'] }}</span></div>
+                <div class="col-md-3"><strong>Percentage Present:</strong>
+                    @if($summary['percentage'] !== null)
+                        <span class="badge badge-primary">{{ $summary['percentage'] }}%</span>
+                    @else
+                        <span class="text-muted">N/A</span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -91,6 +97,7 @@
                             <th>Subject</th>
                             <th class="text-center">Type</th>
                             <th class="text-center">Status</th>
+                            <th class="text-center">Reason</th>
                             <th>Remarks</th>
                         </tr>
                         </thead>
@@ -106,6 +113,22 @@
                                 <td>{{ optional($s->subject)->name ?? 'Daily' }}</td>
                                 <td class="text-center">{{ ucfirst($s->type) }}</td>
                                 <td class="text-center">{{ ucfirst($record->status) }}</td>
+                                <td class="text-center">
+                                    @if($record->absence_reason)
+                                        @php
+                                            $reasons = [
+                                                'sick' => 'Sick',
+                                                'family_emergency' => 'Family Emergency',
+                                                'school_activity' => 'School Activity',
+                                                'unexcused' => 'Unexcused',
+                                                'other' => 'Other',
+                                            ];
+                                        @endphp
+                                        <span class="badge badge-light">{{ $reasons[$record->absence_reason] ?? $record->absence_reason }}</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
                                 <td>{{ $record->remarks }}</td>
                             </tr>
                         @endforeach

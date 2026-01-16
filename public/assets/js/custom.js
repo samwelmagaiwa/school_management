@@ -26,6 +26,75 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
+$(document).on('change', '.js-dorm-select', function () {
+    var dormId = $(this).val();
+    var targetRoom = $($(this).data('target-room'));
+    var targetBed = $($(this).data('target-bed'));
+
+    if (!targetRoom.length || !targetBed.length) {
+        return;
+    }
+
+    targetRoom.empty().append('<option value="">Loading...</option>');
+    targetBed.empty().append('<option value="">Select room first</option>');
+
+    if (!dormId) {
+        targetRoom.html('<option value="">Select dorm first</option>');
+        return;
+    }
+
+    $.get('/ajax/dorms/' + dormId + '/rooms', function (rooms) {
+        targetRoom.empty().append('<option value="">Select room</option>');
+        rooms.forEach(function (room) {
+            targetRoom.append('<option value="' + room.id + '">' + room.name + ' (' + room.bed_count + ' beds)</option>');
+        });
+
+        var selectedRoom = $('.js-dorm-select[data-target-room="#' + targetRoom.attr('id') + '"]').data('selected-room');
+        if (selectedRoom) {
+            targetRoom.val(selectedRoom).trigger('change');
+            $('.js-dorm-select[data-target-room="#' + targetRoom.attr('id') + '"]').data('selected-room', null);
+        }
+    });
+});
+
+$(document).on('change', '.js-dorm-room', function () {
+    var roomId = $(this).val();
+    var targetBed = $($(this).data('target'));
+    if (!targetBed.length) {
+        return;
+    }
+
+    targetBed.empty().append('<option value="">Loading...</option>');
+
+    if (!roomId) {
+        targetBed.html('<option value="">Select room first</option>');
+        return;
+    }
+
+    $.get('/ajax/rooms/' + roomId + '/beds', function (beds) {
+        targetBed.empty().append('<option value="">Select bed</option>');
+        beds.forEach(function (bed) {
+            targetBed.append('<option value="' + bed.id + '">' + bed.label + ' - ' + bed.status + '</option>');
+        });
+
+        var selectedBed = $('.js-dorm-select[data-target-bed="#' + targetBed.attr('id') + '"]').data('selected-bed');
+        if (selectedBed) {
+            targetBed.val(selectedBed);
+            $('.js-dorm-select[data-target-bed="#' + targetBed.attr('id') + '"]').data('selected-bed', null);
+        }
+    });
+});
+
+$(document).ready(function () {
+    $('.js-dorm-select').each(function () {
+        var dormId = $(this).val();
+        var selectedRoom = $(this).data('selected-room');
+        if (dormId && selectedRoom) {
+            $(this).trigger('change');
+        }
+    });
+});
+
 // Load places for a selected village/street
 function getPlaces(village_id) {
     var $place = $('#place_id');

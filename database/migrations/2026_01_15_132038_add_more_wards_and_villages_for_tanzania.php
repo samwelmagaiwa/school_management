@@ -11,6 +11,11 @@ class AddMoreWardsAndVillagesForTanzania extends Migration
     {
         $lgaTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
 
+        // If neither lgas nor districts exist yet (fresh install), skip.
+        if (! Schema::hasTable($lgaTable)) {
+            return;
+        }
+
         // Arusha - Arusha City Wards
         $arushaCity = DB::table($lgaTable)->where('name', 'Arusha City')->first();
         if ($arushaCity) {

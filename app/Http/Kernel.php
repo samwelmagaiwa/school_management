@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'examIsLocked' => \App\Http\Middleware\Custom\ExamIsLocked::class,
         'my_parent' => \App\Http\Middleware\Custom\MyParent::class,
         'libraryManager' => \App\Http\Middleware\Custom\LibrarianOrAdmin::class,
+        'custom.hostel' => \App\Http\Middleware\Custom\HostelOfficerOrAdmin::class,
     ];
 }

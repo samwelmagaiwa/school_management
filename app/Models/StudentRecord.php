@@ -11,7 +11,7 @@ class StudentRecord extends Eloquent
     use HasFactory;
 
     protected $fillable = [
-        'session', 'user_id', 'my_class_id', 'section_id', 'my_parent_id', 'dorm_id', 'dorm_room_no', 'adm_no', 'year_admitted', 'wd', 'wd_date', 'grad', 'grad_date', 'house', 'age'
+        'session', 'user_id', 'my_class_id', 'section_id', 'my_parent_id', 'dorm_id', 'dorm_room_id', 'dorm_bed_id', 'current_allocation_id', 'allocation_status', 'dorm_room_no', 'adm_no', 'year_admitted', 'wd', 'wd_date', 'grad', 'grad_date', 'house', 'age'
     ];
 
     public function user()
@@ -37,5 +37,20 @@ class StudentRecord extends Eloquent
     public function dorm()
     {
         return $this->belongsTo(Dorm::class);
+    }
+
+    public function dormRoom()
+    {
+        return $this->belongsTo(DormRoom::class, 'dorm_room_id');
+    }
+
+    public function dormBed()
+    {
+        return $this->belongsTo(DormBed::class, 'dorm_bed_id');
+    }
+
+    public function currentAllocation()
+    {
+        return $this->belongsTo(DormAllocation::class, 'current_allocation_id');
     }
 }

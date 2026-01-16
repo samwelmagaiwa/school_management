@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (! Schema::hasTable('nationalities')) {
+            return;
+        }
+
         // 1. Clean up duplicate nationalities
         // We group by name and keep the one with the smallest ID
         $duplicates = DB::table('nationalities')
@@ -40,6 +44,10 @@ return new class extends Migration
      */
     public function down()
     {
+        if (! Schema::hasTable('nationalities')) {
+            return;
+        }
+
         Schema::table('nationalities', function (Blueprint $table) {
             $table->dropUnique(['name']);
         });

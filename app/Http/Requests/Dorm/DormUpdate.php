@@ -17,6 +17,9 @@ class DormUpdate extends FormRequest
     {
         return [
             'name' => 'required|string|unique:dorms,id,name',
+            'gender' => 'required|in:male,female,mixed',
+            'capacity' => 'nullable|integer|min:0',
+            'notes' => 'nullable|string',
         ];
     }
 

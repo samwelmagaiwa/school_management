@@ -17,6 +17,13 @@ class CreateDormsTable extends Migration
             $table->increments('id');
             $table->string('name', 100)->unique();
             $table->string('description')->nullable();
+            // Extended metadata so fresh installs don't depend on the
+            // later AddMetadataColumnsToDormsTable upgrade.
+            $table->string('gender', 10)->default('mixed');
+            $table->unsignedInteger('capacity')->nullable();
+            $table->unsignedInteger('room_count')->default(0);
+            $table->unsignedInteger('bed_count')->default(0);
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

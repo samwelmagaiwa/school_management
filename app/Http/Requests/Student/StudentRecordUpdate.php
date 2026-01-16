@@ -34,7 +34,9 @@ class StudentRecordUpdate extends FormRequest
             'lga_id' => 'required',
             'nal_id' => 'required',
             'my_parent_id' => 'sometimes|nullable',
-            'dorm_id' => 'sometimes|nullable',
+            'dorm_id' => 'sometimes|nullable|exists:dorms,id',
+            'dorm_room_id' => 'sometimes|nullable|exists:dorm_rooms,id',
+            'dorm_bed_id' => 'sometimes|nullable|exists:dorm_beds,id',
             'ward' => 'required|string|min:2|max:120',
             'street' => 'required|string|min:2|max:120',
         ];
@@ -45,6 +47,8 @@ class StudentRecordUpdate extends FormRequest
         return  [
             'nal_id' => 'Nationality',
             'dorm_id' => 'Dormitory',
+            'dorm_room_id' => 'Dorm Room',
+            'dorm_bed_id' => 'Dorm Bed',
             'state_id' => 'State',
             'lga_id' => 'LGA',
             'bg_id' => 'Blood Group',

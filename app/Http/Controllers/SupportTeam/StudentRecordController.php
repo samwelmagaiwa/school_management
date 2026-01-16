@@ -6,11 +6,13 @@ use App\Helpers\Qs;
 use App\Helpers\Mk;
 use App\Http\Requests\Student\StudentRecordCreate;
 use App\Http\Requests\Student\StudentRecordUpdate;
+use App\Models\DormBed;
 use App\Repositories\LocationRepo;
 use App\Repositories\MyClassRepo;
 use App\Repositories\StudentRepo;
 use App\Repositories\UserRepo;
 use App\Http\Controllers\Controller;
+use App\Services\HostelService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +22,7 @@ class StudentRecordController extends Controller
 {
     protected $loc, $my_class, $user, $student;
 
-   public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student)
+   public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student, protected HostelService $hostelService)
    {
        $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
        $this->middleware('super_admin', ['only' => ['destroy',] ]);
@@ -43,7 +45,7 @@ class StudentRecordController extends Controller
     {
         $data['my_classes'] = $this->my_class->all();
         $data['parents'] = $this->user->getUserByType('parent');
-        $data['dorms'] = $this->student->getAllDorms();
+        $data['dorms'] = $this->student->getAllDorms(true);
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
         return view('pages.support_team.students.add', $data);
@@ -90,7 +92,15 @@ class StudentRecordController extends Controller
         $sr['user_id'] = $user->id;
         $sr['session'] = Qs::getSetting('current_session');
 
-        $this->student->createRecord($sr); // Create Student
+        $studentRecord = $this->student->createRecord($sr); // Create Student
+
+        if ($req->filled('dorm_bed_id')) {
+            $bed = DormBed::find($req->dorm_bed_id);
+            if ($bed) {
+                $this->hostelService->assignBed($studentRecord, $bed);
+            }
+        }
+
         return Qs::jsonStoreOk();
     }
 
@@ -145,7 +155,7 @@ class StudentRecordController extends Controller
         $data['sr'] = $sr;
         $data['my_classes'] = $this->my_class->all();
         $data['parents'] = $this->user->getUserByType('parent');
-        $data['dorms'] = $this->student->getAllDorms();
+        $data['dorms'] = $this->student->getAllDorms(true);
         $data['states'] = $this->loc->getStates();
         $data['nationals'] = $this->loc->getAllNationals();
 
@@ -189,6 +199,19 @@ class StudentRecordController extends Controller
         $srec = $req->only(Qs::getStudentData());
 
         $this->student->updateRecord($sr_id, $srec); // Update St Rec
+        $sr->refresh();
+
+        if ($req->boolean('vacate_bed')) {
+            $this->hostelService->vacateBed($sr);
+            $sr->refresh();
+        }
+
+        if ($req->filled('dorm_bed_id')) {
+            $bed = DormBed::find($req->dorm_bed_id);
+            if ($bed && $sr->dorm_bed_id !== $bed->id) {
+                $this->hostelService->assignBed($sr, $bed);
+            }
+        }
 
         /*** If Class/Section is Changed in Same Year, Delete Marks/ExamRecord of Previous Class/Section ****/
         Mk::deleteOldRecord($sr->user->id, $srec['my_class_id']);

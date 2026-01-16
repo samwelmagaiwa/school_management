@@ -10,6 +10,13 @@ class AddIndexesToLocationTables extends Migration
     {
         $districtTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
 
+        // On fresh installs the base location tables may not yet exist;
+        // this migration only adds performance indexes for existing data.
+        if (! Schema::hasTable('states') || ! Schema::hasTable($districtTable) ||
+            ! Schema::hasTable('wards') || ! Schema::hasTable('villages')) {
+            return;
+        }
+
         Schema::table('states', function (Blueprint $table) {
             $table->index(['name', 'country_code']);
         });
@@ -30,6 +37,11 @@ class AddIndexesToLocationTables extends Migration
     public function down()
     {
         $districtTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
+
+        if (! Schema::hasTable('states') || ! Schema::hasTable($districtTable) ||
+            ! Schema::hasTable('wards') || ! Schema::hasTable('villages')) {
+            return;
+        }
 
         Schema::table('states', function (Blueprint $table) {
             $table->dropIndex(['name', 'country_code']);

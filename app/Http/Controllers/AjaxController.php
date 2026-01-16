@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Qs;
+use App\Models\Dorm;
+use App\Models\DormRoom;
 use App\Models\Nationality;
 use App\Repositories\LocationRepo;
 use App\Repositories\MyClassRepo;
@@ -101,6 +103,16 @@ class AjaxController extends Controller
         })->all();
 
         return $d;
+    }
+
+    public function getDormRooms(Dorm $dorm)
+    {
+        return $dorm->rooms()->select('id', 'name', 'gender', 'bed_count')->orderBy('name')->get();
+    }
+
+    public function getRoomBeds(DormRoom $room)
+    {
+        return $room->beds()->select('id', 'label', 'status', 'is_active')->orderBy('label')->get();
     }
 
 }

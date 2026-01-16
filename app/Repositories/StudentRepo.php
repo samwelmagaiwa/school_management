@@ -75,9 +75,19 @@ class StudentRepo {
         return $this->gradStudents()->where($data)->with('user');
     }
 
-    public function getAllDorms()
+    public function getAllDorms($withRooms = false)
     {
-        return Dorm::orderBy('name', 'asc')->get();
+        $query = Dorm::orderBy('name', 'asc');
+
+        if ($withRooms) {
+            $query->with(['rooms' => function ($q) {
+                $q->orderBy('name', 'asc')->with(['beds' => function ($b) {
+                    $b->orderBy('label', 'asc');
+                }]);
+            }]);
+        }
+
+        return $query->get();
     }
 
     public function exists($student_id)

@@ -14,6 +14,14 @@ class AddTanzaniaRegionsAndDistricts extends Migration
      */
     public function up()
     {
+        // This migration seeds additional data into the states/districts
+        // hierarchy. On a completely fresh install, the base states/lgas
+        // tables are created later by the 2026_09_22_* migrations, so we
+        // skip seeding if those tables are not yet present.
+        if (! Schema::hasTable('states')) {
+            return;
+        }
+
         $regions = [
             'Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma', 
             'Kilimanjaro', 'Lindi', 'Manyara', 'Mara', 'Mbeya', 'Morogoro', 'Mtwara', 'Mwanza', 
@@ -54,6 +62,10 @@ class AddTanzaniaRegionsAndDistricts extends Migration
      */
     public function down()
     {
+        if (! Schema::hasTable('states')) {
+            return;
+        }
+
         $lgaTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
         $regionIds = DB::table('states')->where('country_code', 'TZ')->pluck('id');
         DB::table($lgaTable)->whereIn('state_id', $regionIds)->delete();

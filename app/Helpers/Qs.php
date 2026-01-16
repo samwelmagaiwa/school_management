@@ -113,7 +113,7 @@ class Qs
 
     public static function getStudentData($remove = [])
     {
-        $data = ['my_class_id', 'section_id', 'my_parent_id', 'dorm_id', 'dorm_room_no', 'year_admitted', 'house', 'age'];
+        $data = ['my_class_id', 'section_id', 'my_parent_id', 'dorm_id', 'dorm_room_id', 'dorm_bed_id', 'dorm_room_no', 'year_admitted', 'house', 'age'];
 
         return $remove ? array_values(array_diff($data, $remove)) : $data;
 
@@ -189,13 +189,13 @@ class Qs
 
     public static function getStaff($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian'];
+        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
     public static function getAllUserTypes($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'student', 'parent'];
+        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer', 'student', 'parent'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
@@ -286,24 +286,39 @@ class Qs
 
     public static function getSetting($type)
     {
-        return Setting::where('type', $type)->first()->description;
+        $setting = Setting::where('type', $type)->first();
+
+        // Gracefully handle missing settings instead of throwing
+        return $setting->description ?? null;
     }
 
     public static function getCurrentSession()
     {
-        return self::getSetting('current_session');
+        // Fall back to a sane default if not configured
+        return self::getSetting('current_session') ?? '2018-2019';
     }
 
     public static function getNextSession()
     {
         $oy = self::getCurrentSession();
+
+        if (! $oy || strpos($oy, '-') === false) {
+            return null;
+        }
+
         $old_yr = explode('-', $oy);
-        return ++$old_yr[0].'-'.++$old_yr[1];
+
+        // Safely increment both parts if they are numeric
+        if (is_numeric($old_yr[0]) && is_numeric($old_yr[1])) {
+            return ++$old_yr[0].'-'.++$old_yr[1];
+        }
+
+        return null;
     }
 
     public static function getSystemName()
     {
-        return self::getSetting('system_name');
+        return self::getSetting('system_name') ?? 'samTECH ACADEMY';
     }
 
     public static function findMyChildren($parent_id)

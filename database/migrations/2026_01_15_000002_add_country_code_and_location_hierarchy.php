@@ -8,6 +8,13 @@ class AddCountryCodeAndLocationHierarchy extends Migration
 {
     public function up()
     {
+        // On fresh installs the states/lgas tables are created later by
+        // the 2026_09_22_* migrations. This migration only upgrades
+        // existing databases, so skip if base tables don't exist.
+        if (! Schema::hasTable('states')) {
+            return;
+        }
+
         // Add country_code to states so we can distinguish countries
         Schema::table('states', function (Blueprint $table) {
             if (!Schema::hasColumn('states', 'country_code')) {
@@ -44,6 +51,10 @@ class AddCountryCodeAndLocationHierarchy extends Migration
 
         if (Schema::hasTable('wards')) {
             Schema::drop('wards');
+        }
+
+        if (! Schema::hasTable('states')) {
+            return;
         }
 
         Schema::table('states', function (Blueprint $table) {

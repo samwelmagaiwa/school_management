@@ -4,15 +4,19 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBookRequestsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
+        // If the modern book_requests table already exists, this legacy
+        // creator should not run.
+        if (Schema::hasTable('book_requests')) {
+            return;
+        }
+
         Schema::create('book_requests', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('book_id');
@@ -27,11 +31,9 @@ class CreateBookRequestsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('book_requests');
     }
-}
+};

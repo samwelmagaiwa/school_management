@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Helpers\Qs;
+use App\Models\StudentRecord;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -40,6 +41,11 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('id', function($value){
             return Qs::decodeHash($value);
+        });
+
+        Route::bind('student', function ($value) {
+            $id = Qs::decodeHash($value);
+            return StudentRecord::findOrFail($id);
         });
 
         $this->configureRateLimiting();

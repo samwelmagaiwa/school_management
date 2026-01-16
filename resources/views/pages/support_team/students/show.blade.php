@@ -112,7 +112,15 @@
                             @if($sr->dorm_id)
                                 <tr>
                                     <td class="font-weight-bold">Dormitory</td>
-                                    <td>{{$sr->dorm->name.' '.$sr->dorm_room_no }}</td>
+                                    <td>{{$sr->dorm->name ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold">Room</td>
+                                    <td>{{$sr->dormRoom->name ?? $sr->dorm_room_no ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="font-weight-bold">Bed</td>
+                                    <td>{{$sr->dormBed->label ?? '—' }} <span class="badge badge-flat border-{{ $sr->allocation_status === 'assigned' ? 'success' : 'secondary' }} text-{{ $sr->allocation_status === 'assigned' ? 'success' : 'secondary' }} ml-2 text-capitalize">{{ $sr->allocation_status }}</span></td>
                                 </tr>
                             @endif
 

@@ -226,6 +226,18 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('grades', 'GradeController');
         Route::resource('exams', 'ExamController');
         Route::resource('dorms', 'DormController');
+        Route::group(['prefix' => 'dorms/{dorm}', 'as' => 'dorms.', 'middleware' => 'custom.hostel'], function () {
+            Route::post('rooms', 'DormRoomController@store')->name('rooms.store');
+            Route::put('rooms/{room}', 'DormRoomController@update')->name('rooms.update');
+            Route::delete('rooms/{room}', 'DormRoomController@destroy')->name('rooms.destroy');
+
+            Route::post('rooms/{room}/beds', 'DormBedController@store')->name('rooms.beds.store');
+            Route::put('rooms/{room}/beds/{bed}', 'DormBedController@update')->name('rooms.beds.update');
+            Route::delete('rooms/{room}/beds/{bed}', 'DormBedController@destroy')->name('rooms.beds.destroy');
+        });
+
+        Route::post('students/{student}/allocation', 'DormAllocationController@store')->name('students.allocation.store')->middleware('custom.hostel');
+        Route::post('students/{student}/allocation/vacate', 'DormAllocationController@vacate')->name('students.allocation.vacate')->middleware('custom.hostel');
         Route::resource('payments', 'PaymentController');
 
     });
@@ -239,6 +251,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('get_places/{village_id}', 'AjaxController@get_places')->name('get_places');
         Route::get('get_class_sections/{class_id}', 'AjaxController@get_class_sections')->name('get_class_sections');
         Route::get('get_class_subjects/{class_id}', 'AjaxController@get_class_subjects')->name('get_class_subjects');
+        Route::get('dorms/{dorm}/rooms', 'AjaxController@getDormRooms')->name('ajax.dorm.rooms');
+        Route::get('rooms/{room}/beds', 'AjaxController@getRoomBeds')->name('ajax.dorm.beds');
     });
 
 });

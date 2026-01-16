@@ -15,6 +15,7 @@ class UserTypesTableSeeder extends Seeder
     {
         $data = [
             ['title' => 'librarian', 'name' => 'Librarian', 'level' => 6],
+            ['title' => 'hostel_officer', 'name' => 'Hostel Officer', 'level' => 5],
             ['title' => 'accountant', 'name' => 'Accountant', 'level' => 5],
             ['title' => 'parent', 'name' => 'Parent', 'level' => 4],
             ['title' => 'teacher', 'name' => 'Teacher', 'level' => 3],

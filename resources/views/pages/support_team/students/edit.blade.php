@@ -207,9 +207,9 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label for="dorm_id">Dormitory: </label>
-                            <select data-placeholder="Choose..."  name="dorm_id" id="dorm_id" class="select-search form-control">
+                            <select data-placeholder="Choose..."  name="dorm_id" id="dorm_id" class="select-search form-control js-dorm-select" data-target-room="#dorm_room_id" data-target-bed="#dorm_bed_id" data-selected-room="{{ $sr->dorm_room_id }}" data-selected-bed="{{ $sr->dorm_bed_id }}">
                                 <option value=""></option>
                                 @foreach($dorms as $d)
                                     <option {{ ($sr->dorm_id == $d->id) ? 'selected' : '' }} value="{{ $d->id }}">{{ $d->name }}</option>
@@ -218,12 +218,42 @@
 
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label>Dormitory Room No:</label>
-                                <input type="text" name="dorm_room_no" placeholder="Dormitory Room No" class="form-control" value="{{ $sr->dorm_room_no }}">
+                                <label for="dorm_room_id">Dorm Room:</label>
+                                <select name="dorm_room_id" id="dorm_room_id" class="form-control js-dorm-room" data-target="#dorm_bed_id">
+                                    <option value="">Select dorm</option>
+                                </select>
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="dorm_bed_id">Bed:</label>
+                                <select name="dorm_bed_id" id="dorm_bed_id" class="form-control js-dorm-bed">
+                                    <option value="">Select room</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Manual Room Reference:</label>
+                                <input type="text" name="dorm_room_no" placeholder="Optional notes" class="form-control" value="{{ $sr->dorm_room_no }}">
+                            </div>
+                        </div>
+
+                        @if($sr->current_allocation_id)
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="d-block">Vacate Bed</label>
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="vacate_bed" value="1">
+                                        <span class="custom-control-label">Remove current allocation</span>
+                                    </label>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </fieldset>
 

@@ -8,55 +8,121 @@ class AddUniqueIndexToVillagesTable extends Migration
 {
     public function up()
     {
-        $districtTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
+        // Ensure base tables exist before attempting to add indexes
+        if (
+            ! Schema::hasTable('states') ||
+            ! Schema::hasTable('wards') ||
+            ! Schema::hasTable('villages')
+        ) {
+            return;
+        }
 
-        // Before adding unique indexes, we must ensure there are no remaining duplicates.
-        // The cleanup command should have handled this, but we'll use unique index directly.
-        
+        $districtTable = null;
+
+        if (Schema::hasTable('districts')) {
+            $districtTable = 'districts';
+        } elseif (Schema::hasTable('lgas')) {
+            $districtTable = 'lgas';
+        }
+
+        if (! $districtTable) {
+            return;
+        }
+
+        // Add unique constraints without trying to drop non-unique ones (safer for fresh installs).
         Schema::table('states', function (Blueprint $table) {
-            // Drop existing non-unique index if it exists
-            $table->dropIndex(['name', 'country_code']);
-            $table->unique(['name', 'country_code']);
+            if (
+                Schema::hasColumn('states', 'name') &&
+                Schema::hasColumn('states', 'country_code')
+            ) {
+                $table->unique(['name', 'country_code']);
+            }
         });
 
-        Schema::table($districtTable, function (Blueprint $table) {
-            $table->dropIndex(['name', 'state_id']);
-            $table->unique(['name', 'state_id']);
+        Schema::table($districtTable, function (Blueprint $table) use ($districtTable) {
+            if (
+                Schema::hasColumn($districtTable, 'name') &&
+                Schema::hasColumn($districtTable, 'state_id')
+            ) {
+                $table->unique(['name', 'state_id']);
+            }
         });
 
         Schema::table('wards', function (Blueprint $table) {
-            $table->dropIndex(['name', 'lga_id']);
-            $table->unique(['name', 'lga_id']);
+            if (
+                Schema::hasColumn('wards', 'name') &&
+                Schema::hasColumn('wards', 'lga_id')
+            ) {
+                $table->unique(['name', 'lga_id']);
+            }
         });
 
         Schema::table('villages', function (Blueprint $table) {
-            $table->dropIndex(['name', 'ward_id']);
-            $table->unique(['name', 'ward_id']);
+            if (
+                Schema::hasColumn('villages', 'name') &&
+                Schema::hasColumn('villages', 'ward_id')
+            ) {
+                $table->unique(['name', 'ward_id']);
+            }
         });
     }
 
     public function down()
     {
-        $districtTable = Schema::hasTable('districts') ? 'districts' : 'lgas';
+        if (
+            ! Schema::hasTable('states') ||
+            ! Schema::hasTable('wards') ||
+            ! Schema::hasTable('villages')
+        ) {
+            return;
+        }
+
+        $districtTable = null;
+
+        if (Schema::hasTable('districts')) {
+            $districtTable = 'districts';
+        } elseif (Schema::hasTable('lgas')) {
+            $districtTable = 'lgas';
+        }
+
+        if (! $districtTable) {
+            return;
+        }
 
         Schema::table('states', function (Blueprint $table) {
-            $table->dropUnique(['name', 'country_code']);
-            $table->index(['name', 'country_code']);
+            if (
+                Schema::hasColumn('states', 'name') &&
+                Schema::hasColumn('states', 'country_code')
+            ) {
+                $table->dropUnique(['name', 'country_code']);
+            }
         });
 
-        Schema::table($districtTable, function (Blueprint $table) {
-            $table->dropUnique(['name', 'state_id']);
-            $table->index(['name', 'state_id']);
+        Schema::table($districtTable, function (Blueprint $table) use ($districtTable) {
+            if (
+                Schema::hasColumn($districtTable, 'name') &&
+                Schema::hasColumn($districtTable, 'state_id')
+            ) {
+                $table->dropUnique(['name', 'state_id']);
+            }
         });
 
         Schema::table('wards', function (Blueprint $table) {
-            $table->dropUnique(['name', 'lga_id']);
-            $table->index(['name', 'lga_id']);
+            if (
+                Schema::hasColumn('wards', 'name') &&
+                Schema::hasColumn('wards', 'lga_id')
+            ) {
+                $table->dropUnique(['name', 'lga_id']);
+            }
         });
 
         Schema::table('villages', function (Blueprint $table) {
-            $table->dropUnique(['name', 'ward_id']);
-            $table->index(['name', 'ward_id']);
+            if (
+                Schema::hasColumn('villages', 'name') &&
+                Schema::hasColumn('villages', 'ward_id')
+            ) {
+                $table->dropUnique(['name', 'ward_id']);
+            }
         });
     }
 }

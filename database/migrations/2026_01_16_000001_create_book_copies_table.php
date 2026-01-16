@@ -8,6 +8,21 @@ class CreateBookCopiesTable extends Migration
 {
     public function up()
     {
+        // If the table already exists (for example, from a partial/failed migration run),
+        // just ensure the foreign key is present and mark this migration as completed.
+        if (Schema::hasTable('book_copies')) {
+            if (Schema::hasTable('books')) {
+                Schema::table('book_copies', function (Blueprint $table) {
+                    $table->foreign('book_id')
+                        ->references('id')
+                        ->on('books')
+                        ->onDelete('cascade');
+                });
+            }
+
+            return;
+        }
+
         Schema::create('book_copies', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('book_id');
@@ -16,7 +31,12 @@ class CreateBookCopiesTable extends Migration
             $table->string('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
+            if (Schema::hasTable('books')) {
+                $table->foreign('book_id')
+                    ->references('id')
+                    ->on('books')
+                    ->onDelete('cascade');
+            }
         });
     }
 

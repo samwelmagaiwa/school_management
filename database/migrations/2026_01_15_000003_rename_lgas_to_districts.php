@@ -8,19 +8,31 @@ class RenameLgasToDistricts extends Migration
 {
     public function up()
     {
-        // Drop foreign keys that reference lgas
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'lga_id')) {
-                // Uses array syntax so Laravel infers the FK name
-                $table->dropForeign(['lga_id']);
+        // Drop foreign keys that reference lgas (if they exist).
+        if (Schema::hasTable('users')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    if (Schema::hasColumn('users', 'lga_id')) {
+                        // Uses array syntax so Laravel infers the FK name
+                        $table->dropForeign(['lga_id']);
+                    }
+                });
+            } catch (\Throwable $e) {
+                // FK might not exist on fresh installs; ignore.
             }
-        });
+        }
 
-        Schema::table('lgas', function (Blueprint $table) {
-            if (Schema::hasColumn('lgas', 'state_id')) {
-                $table->dropForeign(['state_id']);
+        if (Schema::hasTable('lgas')) {
+            try {
+                Schema::table('lgas', function (Blueprint $table) {
+                    if (Schema::hasColumn('lgas', 'state_id')) {
+                        $table->dropForeign(['state_id']);
+                    }
+                });
+            } catch (\Throwable $e) {
+                // FK might not exist; ignore.
             }
-        });
+        }
 
         // Rename the lgas table to districts
         if (Schema::hasTable('lgas') && ! Schema::hasTable('districts')) {
@@ -43,18 +55,30 @@ class RenameLgasToDistricts extends Migration
 
     public function down()
     {
-        // Drop foreign keys referencing districts
-        Schema::table('users', function (Blueprint $table) {
-            if (Schema::hasColumn('users', 'lga_id')) {
-                $table->dropForeign(['lga_id']);
+        // Drop foreign keys referencing districts (if they exist).
+        if (Schema::hasTable('users')) {
+            try {
+                Schema::table('users', function (Blueprint $table) {
+                    if (Schema::hasColumn('users', 'lga_id')) {
+                        $table->dropForeign(['lga_id']);
+                    }
+                });
+            } catch (\Throwable $e) {
+                // FK might not exist; ignore.
             }
-        });
+        }
 
-        Schema::table('districts', function (Blueprint $table) {
-            if (Schema::hasColumn('districts', 'state_id')) {
-                $table->dropForeign(['state_id']);
+        if (Schema::hasTable('districts')) {
+            try {
+                Schema::table('districts', function (Blueprint $table) {
+                    if (Schema::hasColumn('districts', 'state_id')) {
+                        $table->dropForeign(['state_id']);
+                    }
+                });
+            } catch (\Throwable $e) {
+                // FK might not exist; ignore.
             }
-        });
+        }
 
         // Rename back to lgas if needed
         if (Schema::hasTable('districts') && ! Schema::hasTable('lgas')) {
