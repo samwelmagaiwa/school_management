@@ -12,6 +12,7 @@ use App\Repositories\MyClassRepo;
 use App\Repositories\StudentRepo;
 use App\Repositories\UserRepo;
 use App\Http\Controllers\Controller;
+use App\Services\Accounting\StudentBillingService;
 use App\Services\HostelService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +23,7 @@ class StudentRecordController extends Controller
 {
     protected $loc, $my_class, $user, $student;
 
-   public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student, protected HostelService $hostelService)
+   public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student, protected HostelService $hostelService, protected StudentBillingService $billing)
    {
        $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
        $this->middleware('super_admin', ['only' => ['destroy',] ]);
@@ -31,6 +32,7 @@ class StudentRecordController extends Controller
         $this->my_class = $my_class;
         $this->user = $user;
         $this->student = $student;
+        $this->billing = $billing;
    }
 
     public function reset_pass($st_id)
@@ -100,6 +102,8 @@ class StudentRecordController extends Controller
                 $this->hostelService->assignBed($studentRecord, $bed);
             }
         }
+
+        $this->billing->generateForEnrollment($studentRecord);
 
         return Qs::jsonStoreOk();
     }

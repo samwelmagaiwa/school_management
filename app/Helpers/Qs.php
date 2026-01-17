@@ -67,27 +67,28 @@ class Qs
 
     public static function getTeamSA()
     {
-        return ['admin', 'super_admin'];
+        // Treat legacy "super_adm" as equivalent to "super_admin"
+        return ['admin', 'super_admin', 'super_adm'];
     }
 
     public static function getTeamAccount()
     {
-        return ['admin', 'super_admin', 'accountant'];
+        return ['admin', 'super_admin', 'super_adm', 'accountant'];
     }
 
     public static function getTeamSAT()
     {
-        return ['admin', 'super_admin', 'teacher'];
+        return ['admin', 'super_admin', 'super_adm', 'teacher'];
     }
 
     public static function getTeamAcademic()
     {
-        return ['admin', 'super_admin', 'teacher', 'student'];
+        return ['admin', 'super_admin', 'super_adm', 'teacher', 'student'];
     }
 
     public static function getTeamAdministrative()
     {
-        return ['admin', 'super_admin', 'accountant'];
+        return ['admin', 'super_admin', 'super_adm', 'accountant'];
     }
 
     public static function hash($id)
@@ -159,12 +160,19 @@ class Qs
 
     public static function getUserType()
     {
-        return Auth::user()->user_type;
+        $type = Auth::user()->user_type;
+
+        // Normalise legacy alias
+        if ($type === 'super_adm') {
+            return 'super_admin';
+        }
+
+        return $type;
     }
 
     public static function userIsSuperAdmin()
     {
-        return Auth::user()->user_type == 'super_admin';
+        return in_array(Auth::user()->user_type, ['super_admin', 'super_adm']);
     }
 
     public static function userIsStudent()
@@ -189,13 +197,13 @@ class Qs
 
     public static function getStaff($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer'];
+        $data =  ['super_admin', 'super_adm', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
     public static function getAllUserTypes($remove=[])
     {
-        $data =  ['super_admin', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer', 'student', 'parent'];
+        $data =  ['super_admin', 'super_adm', 'admin', 'teacher', 'accountant', 'librarian', 'hostel_officer', 'student', 'parent'];
         return $remove ? array_values(array_diff($data, $remove)) : $data;
     }
 
@@ -239,7 +247,7 @@ class Qs
 
     public static function getPTA()
     {
-        return ['super_admin', 'admin', 'teacher', 'parent'];
+        return ['super_admin', 'super_adm', 'admin', 'teacher', 'parent'];
     }
 
     /*public static function filesToUpload($programme)

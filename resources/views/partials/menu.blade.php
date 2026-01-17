@@ -88,12 +88,12 @@
                     </li>
                     @endif
 
-                {{--Administrative--}}
+                {{--Support Team--}}
                 @if(Qs::userIsAdministrative())
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show',]) ? 'nav-item-expanded nav-item-open' : '' }} ">
-                        <a href="#" class="nav-link"><i class="icon-office"></i> <span> Administrative</span></a>
+                        <a href="#" class="nav-link"><i class="icon-office"></i> <span> Support Team</span></a>
 
-                        <ul class="nav nav-group-sub" data-submenu-title="Administrative">
+                        <ul class="nav nav-group-sub" data-submenu-title="Support Team">
 
                             {{--Payments--}}
                             @if(Qs::userIsTeamAccount())

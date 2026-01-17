@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\SupportTeam;
 
+use App\Models\Accounting\StudentInstallment;
+
 use App\Helpers\Qs;
 use App\Helpers\Pay;
 use App\Http\Controllers\Controller;
@@ -76,6 +78,12 @@ class PaymentController extends Controller
         $pr = $inv->get();
         $d['uncleared'] = $pr->where('paid', 0);
         $d['cleared'] = $pr->where('paid', 1);
+
+        // New accounting-based installment schedule for this student
+        $d['installments'] = StudentInstallment::with(['invoice', 'installmentDefinition'])
+            ->where('student_id', $d['sr']->user_id)
+            ->orderBy('due_date')
+            ->get();
 
         return view('pages.support_team.payments.invoice', $d);
     }

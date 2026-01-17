@@ -239,10 +239,64 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('students/{student}/allocation', 'DormAllocationController@store')->name('students.allocation.store')->middleware('custom.hostel');
         Route::post('students/{student}/allocation/vacate', 'DormAllocationController@vacate')->name('students.allocation.vacate')->middleware('custom.hostel');
         Route::resource('payments', 'PaymentController');
+ 
+     });
 
+    Route::group(['prefix' => 'accounting', 'middleware' => 'teamAccount'], function () {
+        Route::get('fee-categories', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'index'])->name('accounting.fee-categories.index');
+        Route::post('fee-categories', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'store'])->name('accounting.fee-categories.store');
+        Route::put('fee-categories/{fee_category}', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'update'])->name('accounting.fee-categories.update');
+
+        // Fee structures overview
+        Route::get('fee-structures', [\App\Http\Controllers\Accounting\FeeStructureController::class, 'index'])->name('accounting.fee-structures.index');
+
+        // Fee structure management, installment plans & bulk billing (Admin / Super Admin only)
+        Route::group(['middleware' => 'teamSA'], function () {
+            Route::post('fee-structures', [\App\Http\Controllers\Accounting\FeeStructureController::class, 'store'])
+                ->name('accounting.fee-structures.store');
+            Route::put('fee-structures/{structure}', [\App\Http\Controllers\Accounting\FeeStructureController::class, 'update'])
+                ->name('accounting.fee-structures.update');
+            Route::delete('fee-structures/{structure}', [\App\Http\Controllers\Accounting\FeeStructureController::class, 'destroy'])
+                ->name('accounting.fee-structures.destroy');
+            Route::get('fee-structures/{structure}/installments', [\App\Http\Controllers\Accounting\FeeInstallmentPlanController::class, 'index'])
+                ->name('accounting.installments.index');
+            Route::post('fee-structures/{structure}/installments', [\App\Http\Controllers\Accounting\FeeInstallmentPlanController::class, 'storePlan'])
+                ->name('accounting.installments.plan.store');
+            Route::post('fee-structures/{structure}/installments/{plan}/rows', [\App\Http\Controllers\Accounting\FeeInstallmentPlanController::class, 'storeInstallment'])
+                ->name('accounting.installments.rows.store');
+            Route::put('installments/{installment}', [\App\Http\Controllers\Accounting\FeeInstallmentPlanController::class, 'updateInstallment'])
+                ->name('accounting.installments.rows.update');
+            Route::delete('installments/{installment}', [\App\Http\Controllers\Accounting\FeeInstallmentPlanController::class, 'destroyInstallment'])
+                ->name('accounting.installments.rows.destroy');
+
+            Route::post('fee-structures/{structure}/billing/generate', [\App\Http\Controllers\Accounting\StudentBillingController::class, 'generateForStructure'])
+                ->name('accounting.fee-structures.billing.generate');
+        });
+
+        // Invoices & payments
+        Route::get('invoices', [\App\Http\Controllers\Accounting\InvoiceController::class, 'index'])->name('accounting.invoices.index');
+        Route::get('invoices/{invoice}', [\App\Http\Controllers\Accounting\InvoiceController::class, 'show'])->name('accounting.invoices.show');
+        Route::post('invoices', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'storeInvoice'])->name('accounting.invoices.store');
+
+        Route::get('students/{student}/account', [\App\Http\Controllers\Accounting\StudentAccountController::class, 'show'])->name('accounting.students.account');
+        Route::post('students/{student}/account/payments', [\App\Http\Controllers\Accounting\StudentAccountController::class, 'recordPayment'])->name('accounting.students.account.payments');
+
+        Route::get('payments', [\App\Http\Controllers\Accounting\PaymentLedgerController::class, 'index'])->name('accounting.payments.index');
+        Route::post('payments', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'recordPayment'])->name('accounting.payments.store');
+        Route::post('payments/{payment}/reverse', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'reversePayment'])->name('accounting.payments.reverse');
+
+        Route::post('invoices/{invoice}/waiver', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'approveWaiver'])->name('accounting.invoices.waiver');
+
+        // Period locks
+        Route::post('periods/{period}/lock', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'lockPeriod'])->name('accounting.periods.lock');
+        Route::post('periods/{period}/unlock', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'unlockPeriod'])->name('accounting.periods.unlock');
+
+        // Expenses & reports
+        Route::get('expenses', [\App\Http\Controllers\Accounting\ExpenseController::class, 'index'])->name('accounting.expenses.index');
+        Route::get('reports', [\App\Http\Controllers\Accounting\ReportController::class, 'index'])->name('accounting.reports.index');
     });
 
-    /************************ AJAX ****************************/
+    /************************ AJAX *****************************/
     Route::group(['prefix' => 'ajax'], function() {
         Route::get('get_states/{nal_id}', 'AjaxController@get_states')->name('get_states');
         Route::get('get_lga/{state_id}', 'AjaxController@get_lga')->name('get_lga');
