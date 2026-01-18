@@ -44,6 +44,11 @@
                                             <a href="#" class="list-icons-item" data-toggle="dropdown"><i class="icon-menu9"></i></a>
                                             <div class="dropdown-menu dropdown-menu-left">
                                                 <a href="#" class="dropdown-item" data-toggle="modal" data-target="#editCategoryModal" data-id="{{ $category->id }}" data-name="{{ $category->name }}" data-code="{{ $category->code }}" data-description="{{ $category->description }}" data-active="{{ $category->is_active }}"><i class="icon-pencil"></i> Edit</a>
+                                                <form method="POST" action="{{ route('accounting.fee-categories.destroy', $category) }}" onsubmit="return confirm('Are you sure you want to delete this fee category?');" class="m-0">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger"><i class="icon-bin"></i> Delete</button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>

@@ -310,18 +310,24 @@ class Qs
     {
         $oy = self::getCurrentSession();
 
-        if (! $oy || strpos($oy, '-') === false) {
-            return null;
+        if (! $oy) {
+            return '2019-2020';
         }
 
         $old_yr = explode('-', $oy);
 
-        // Safely increment both parts if they are numeric
-        if (is_numeric($old_yr[0]) && is_numeric($old_yr[1])) {
+        // If it's a range (e.g. 2018-2019)
+        if (isset($old_yr[1]) && is_numeric($old_yr[0]) && is_numeric($old_yr[1])) {
             return ++$old_yr[0].'-'.++$old_yr[1];
         }
 
-        return null;
+        // If it's a single year (e.g. 2018)
+        if (is_numeric($old_yr[0])) {
+            $next = $old_yr[0] + 1;
+            return $old_yr[0].'-'.$next;
+        }
+
+        return '2019-2020';
     }
 
     public static function getSystemName()
@@ -370,6 +376,11 @@ class Qs
     public static function jsonUpdateOk()
     {
         return self::json(__('msg.update_ok'));
+    }
+
+    public static function jsonDeleteOk()
+    {
+        return self::json(__('msg.del_ok'));
     }
 
     public static function storeOk($routeName)

@@ -38,4 +38,36 @@ class FeeInstallment extends Model
     {
         return $this->hasMany(StudentInstallment::class);
     }
+
+    /**
+     * Get the term that owns this installment (NEW HIERARCHY).
+     */
+    public function term()
+    {
+        return $this->belongsTo(FeeStructureTerm::class, 'fee_structure_term_id');
+    }
+
+    /**
+     * Get all items for this installment (NEW HIERARCHY).
+     */
+    public function items()
+    {
+        return $this->hasMany(FeeInstallmentItem::class);
+    }
+
+    /**
+     * Calculate the sum of all item amounts for this installment.
+     */
+    public function getTotalItemsAttribute()
+    {
+        return $this->items()->sum('amount');
+    }
+
+    /**
+     * Check if items match the installment total.
+     */
+    public function isBalanced()
+    {
+        return $this->total_items == $this->fixed_amount;
+    }
 }

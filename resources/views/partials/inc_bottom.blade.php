@@ -39,8 +39,38 @@
 <script src="{{ asset('global_assets/js/demo_pages/uploader_bootstrap.js') }}"></script>
 <script src="{{ asset('global_assets/js/demo_pages/fullcalendar_basic.js') }}"></script>
 
+
 <!-- /theme JS files -->
 
 <script src=" {{ asset('assets/js/custom.js') }} "></script>
+
+{{-- Sidebar Scroll Position Memory --}}
+<script>
+    $(document).ready(function() {
+        var $sidebarScroll = $('.sidebar-nav-scroll');
+        
+        if ($sidebarScroll.length) {
+            // Restore scroll position on page load
+            var savedScrollPos = localStorage.getItem('sidebarScrollPosition');
+            if (savedScrollPos !== null) {
+                $sidebarScroll.scrollTop(parseInt(savedScrollPos));
+            }
+            
+            // Save scroll position before navigating away
+            $('.sidebar-nav-scroll .nav-link').on('click', function() {
+                localStorage.setItem('sidebarScrollPosition', $sidebarScroll.scrollTop());
+            });
+            
+            // Also save on scroll (debounced) in case user scrolls then clicks browser back
+            var scrollTimeout;
+            $sidebarScroll.on('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(function() {
+                    localStorage.setItem('sidebarScrollPosition', $sidebarScroll.scrollTop());
+                }, 150);
+            });
+        }
+    });
+</script>
 
 @include('partials.js.custom_js')

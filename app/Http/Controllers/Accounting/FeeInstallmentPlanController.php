@@ -22,8 +22,9 @@ class FeeInstallmentPlanController extends Controller
     {
         $structure->load(['academicPeriod', 'installmentPlans.installments' => function ($q) {
             $q->orderBy('sequence');
-        }]);
+        }, 'items']); // Load items to sum totals
 
+        $totalAmount = $structure->items->sum('amount');
         $activePlan = $structure->installmentPlans->first();
         $periods = AcademicPeriod::orderBy('ordering')->get();
 
@@ -32,6 +33,7 @@ class FeeInstallmentPlanController extends Controller
             'plan' => $activePlan,
             'installments' => $activePlan?->installments ?? collect(),
             'periods' => $periods,
+            'totalAmount' => $totalAmount,
         ]);
     }
 
@@ -62,10 +64,17 @@ class FeeInstallmentPlanController extends Controller
             'label'             => 'required|string|max:191',
             'percentage'        => 'nullable|numeric|min:0|max:100',
             'fixed_amount'      => 'nullable|numeric|min:0',
-            'due_date'          => 'nullable|date',
-            'grace_days'        => 'nullable|integer|min:0',
-            'late_penalty_type' => 'nullable|in:none,fixed,percentage',
-            'late_penalty_value'=> 'nullable|numeric|min:0',
+            'fixed_amount'      => 'nullable|numeric|min:0',
+            'due_date'          => [
+                'nullable', 
+                'date',
+                function ($attribute, $value, $fail) use ($structure) {
+                    if ($value && $structure->due_date && $value > $structure->due_date->format('Y-m-d')) {
+                         $fail('The installment due date cannot be later than the fee structure due date (' . $structure->due_date->format('d M Y') . ').');
+                    }
+                }
+            ],
+
         ]);
 
         $plan->installments()->create($data);
@@ -75,15 +84,24 @@ class FeeInstallmentPlanController extends Controller
 
     public function updateInstallment(Request $request, FeeInstallment $installment)
     {
+        // We need the structure to validate the date
+        $structure = $installment->feeStructure;
+
         $data = $request->validate([
             'sequence'          => 'required|integer|min:1',
             'label'             => 'required|string|max:191',
             'percentage'        => 'nullable|numeric|min:0|max:100',
             'fixed_amount'      => 'nullable|numeric|min:0',
-            'due_date'          => 'nullable|date',
-            'grace_days'        => 'nullable|integer|min:0',
-            'late_penalty_type' => 'nullable|in:none,fixed,percentage',
-            'late_penalty_value'=> 'nullable|numeric|min:0',
+            'due_date'          => [
+                'nullable', 
+                'date',
+                function ($attribute, $value, $fail) use ($structure) {
+                    if ($value && $structure->due_date && $value > $structure->due_date->format('Y-m-d')) {
+                         $fail('The installment due date cannot be later than the fee structure due date (' . $structure->due_date->format('d M Y') . ').');
+                    }
+                }
+            ],
+
         ]);
 
         $installment->update($data);

@@ -34,6 +34,11 @@ class InstallmentScheduler
             $invoice->loadMissing('items');
             $installmentInvoices = [];
 
+            // Sum all fee items to get total invoice amount for proration
+            $totalInvoiceAmount = $invoice->items->sum(function ($item) {
+                return $item->total_amount ?? ($item->quantity * $item->unit_amount);
+            });
+
             foreach ($invoice->items as $item) {
                 if (! $item->fee_item_id) {
                     continue;
@@ -48,7 +53,8 @@ class InstallmentScheduler
                 $baseAmount = $item->total_amount ?? ($item->quantity * $item->unit_amount);
 
                 foreach ($plan->installments as $definition) {
-                    $portion = $this->calculatePortion($definition, (float) $baseAmount);
+                    // Pass totalInvoiceAmount for fixed installment proration
+                    $portion = $this->calculatePortion($definition, (float) $baseAmount, (float) $totalInvoiceAmount);
 
                     if ($portion <= 0) {
                         continue;
@@ -97,10 +103,14 @@ class InstallmentScheduler
         });
     }
 
-    protected function calculatePortion(FeeInstallment $definition, float $baseAmount): float
+    protected function calculatePortion(FeeInstallment $definition, float $baseAmount, float $totalInvoiceAmount = 0.0): float
     {
         if ($definition->fixed_amount !== null) {
-            return (float) $definition->fixed_amount;
+            if ($totalInvoiceAmount > 0) {
+                $ratio = $baseAmount / $totalInvoiceAmount;
+                return round((float) $definition->fixed_amount * $ratio, 2);
+            }
+            return 0.0;
         }
 
         if ($definition->percentage !== null) {

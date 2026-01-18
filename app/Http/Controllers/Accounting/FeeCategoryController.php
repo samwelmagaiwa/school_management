@@ -37,6 +37,17 @@ class FeeCategoryController extends Controller
         return Qs::jsonUpdateOk();
     }
 
+    public function destroy(FeeCategory $feeCategory)
+    {
+        $feeCategory->delete();
+
+        if (request()->expectsJson()) {
+            return Qs::jsonDeleteOk();
+        }
+
+        return Qs::deleteOk('accounting.fee-categories.index');
+    }
+
     protected function applyCodeRule(array $data, ?FeeCategory $existing = null): array
     {
         $name = strtoupper(trim($data['name'] ?? ''));

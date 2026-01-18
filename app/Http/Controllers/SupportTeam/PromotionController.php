@@ -23,9 +23,8 @@ class PromotionController extends Controller
 
     public function promotion($fc = NULL, $fs = NULL, $tc = NULL, $ts = NULL)
     {
-        $d['old_year'] = $old_yr = Qs::getSetting('current_session');
-        $old_yr = explode('-', $old_yr);
-        $d['new_year'] = ++$old_yr[0].'-'.++$old_yr[1];
+        $d['old_year'] = Qs::getCurrentSession();
+        $d['new_year'] = Qs::getNextSession();
         $d['my_classes'] = $this->my_class->all();
         $d['sections'] = $this->my_class->getAllSections();
         $d['selected'] = false;
@@ -53,9 +52,8 @@ class PromotionController extends Controller
 
     public function promote(Request $req, $fc, $fs, $tc, $ts)
     {
-        $oy = Qs::getSetting('current_session'); $d = [];
-        $old_yr = explode('-', $oy);
-        $ny = ++$old_yr[0].'-'.++$old_yr[1];
+        $oy = Qs::getCurrentSession(); $d = [];
+        $ny = Qs::getNextSession();
         $students = $this->student->getRecord(['my_class_id' => $fc, 'section_id' => $fs, 'session' => $oy ])->get()->sortBy('user.name');
 
         if($students->count() < 1){

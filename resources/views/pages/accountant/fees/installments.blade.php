@@ -42,28 +42,111 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-2">
                         <span class="text-muted d-block">Structure</span>
                         <strong>{{ $structure->name }}</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-2">
-                        <span class="text-muted d-block">Academic Period</span>
-                        <strong>{{ optional($structure->academicPeriod)->name ?? '—' }}</strong>
+                        <span class="text-muted d-block">Academic Period & Due Date</span>
+                        <strong>{{ optional($structure->academicPeriod)->name ?? '—' }}</strong> <br>
+                        <small>{{ optional($structure->due_date)->format('Y-m-d') ?? '—' }}</small>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="mb-2">
-                        <span class="text-muted d-block">Default Due Date</span>
-                        <strong>{{ optional($structure->due_date)->format('Y-m-d') ?? '—' }}</strong>
+                        <span class="text-muted d-block">Total Estimated Amount</span>
+                        <strong class="text-primary" id="total-fee-amount" data-amount="{{ $totalAmount ?? 0 }}">{{ Qs::formatCurrency($totalAmount ?? 0) }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-2">
+                        <span class="text-muted d-block">Allocated So Far</span>
+                        <strong class="text-success" id="allocated-percentage">{{ $installments->sum('percentage') }}%</strong>
+                        <span class="text-muted mx-1">/</span>
+                        <strong class="text-success" id="allocated-amount" data-amount="{{ $installments->sum('fixed_amount') }}">{{ Qs::formatCurrency($installments->sum('fixed_amount')) }}</strong>
                     </div>
                 </div>
             </div>
             <p class="text-muted mb-0">Installment rules created here drive automated billing. Accountants can only collect against the generated schedule; edits happen here only.</p>
         </div>
     </div>
+
+    <!-- ... (rest of the file) ... -->
+
+@push('scripts')
+<script>
+    const totalAmount = parseFloat($('#total-fee-amount').data('amount')) || 0;
+    const currentAllocatedPct = parseFloat($('#allocated-percentage').text()) || 0;
+    const currentAllocatedFixed = parseFloat($('#allocated-amount').data('amount')) || 0;
+
+    function updateRemainingFeedback(modal) {
+        let remainingPct = 100 - currentAllocatedPct;
+        let remainingFixed = totalAmount - currentAllocatedFixed;
+
+        // If editing, add back the *current* installment's values to the pool
+        if(modal.attr('id') === 'modal-edit-installment') {
+            const orgPct = parseFloat(modal.data('original-pct')) || 0;
+            const orgFixed = parseFloat(modal.data('original-fixed')) || 0;
+            remainingPct += orgPct;
+            remainingFixed += orgFixed;
+        }
+
+        let feedbackHtml = `
+            <div class="alert alert-info border-0 alert-styled-left py-2 mt-2">
+                <span class="font-weight-semibold">Remaining Limit:</span>
+                Switching to Percentage: <strong>${Math.max(0, remainingPct).toFixed(2)}%</strong> left.<br>
+                Switching to Fixed: <strong>${Math.max(0, remainingFixed).toFixed(2)}</strong> left.
+            </div>
+        `;
+
+        // Inject feedback
+        if(modal.find('.alert-info').length === 0) {
+            modal.find('.modal-body').prepend(feedbackHtml);
+        } else {
+            modal.find('.alert-info').html(feedbackHtml);
+        }
+    }
+
+    $('#modal-edit-installment').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var modal = $(this);
+        var form = modal.find('form#edit-installment-form');
+        var id = button.data('id');
+        form.attr('action', '/accounting/installments/' + id);
+
+        // Store original values to exclude from total calculation when editing
+        modal.data('original-pct', button.data('percentage'));
+        modal.data('original-fixed', button.data('fixed_amount'));
+
+        form.find('[name="sequence"]').val(button.data('sequence'));
+        form.find('[name="label"]').val(button.data('label'));
+        form.find('[name="percentage"]').val(button.data('percentage'));
+        form.find('[name="fixed_amount"]').val(button.data('fixed_amount'));
+        form.find('[name="due_date"]').val(button.data('due_date'));
+
+        updateRemainingFeedback(modal);
+    });
+
+    $('#modal-add-installment').on('show.bs.modal', function () {
+        var maxSequence = 0;
+        $('#installments-table tbody tr').each(function () {
+            var value = parseInt($(this).find('td:first').text(), 10);
+            if (!isNaN(value)) {
+                maxSequence = Math.max(maxSequence, value);
+            }
+        });
+
+        var modal = $(this);
+        modal.find('input[name="sequence"]').val(maxSequence + 1);
+        modal.find('input[name="label"], input[name="percentage"], input[name="fixed_amount"], input[name="due_date"]').val('');
+        
+        updateRemainingFeedback(modal);
+    });
+</script>
+@endpush
 
     <div class="card">
         <div class="card-header header-elements-inline">
@@ -79,8 +162,7 @@
                     <th>%</th>
                     <th>Fixed Amount</th>
                     <th>Due Date</th>
-                    <th>Grace (days)</th>
-                    <th>Penalty</th>
+
                     <th class="text-center">Actions</th>
                 </tr>
                 </thead>
@@ -92,16 +174,7 @@
                         <td>{{ $row->percentage !== null ? number_format($row->percentage, 2) . '%' : '—' }}</td>
                         <td>{{ $row->fixed_amount !== null ? Qs::formatCurrency($row->fixed_amount) : '—' }}</td>
                         <td>{{ optional($row->due_date)->format('Y-m-d') ?? '—' }}</td>
-                        <td>{{ $row->grace_days ?? '—' }}</td>
-                        <td>
-                            @if($row->late_penalty_type === 'fixed')
-                                Fixed {{ Qs::formatCurrency($row->late_penalty_value) }}
-                            @elseif($row->late_penalty_type === 'percentage')
-                                {{ number_format($row->late_penalty_value, 2) }}%
-                            @else
-                                —
-                            @endif
-                        </td>
+
                         <td class="text-center">
                             <div class="btn-group">
                                 <button type="button"
@@ -114,9 +187,7 @@
                                         data-percentage="{{ $row->percentage }}"
                                         data-fixed_amount="{{ $row->fixed_amount }}"
                                         data-due_date="{{ optional($row->due_date)->format('Y-m-d') }}"
-                                        data-grace_days="{{ $row->grace_days }}"
-                                        data-penalty_type="{{ $row->late_penalty_type }}"
-                                        data-penalty_value="{{ $row->late_penalty_value }}">
+
                                     <i class="icon-pencil"></i>
                                 </button>
                                 <form method="post" action="{{ route('accounting.installments.rows.destroy', $row->id) }}" onsubmit="return confirm('Remove this installment definition?');">
@@ -128,7 +199,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-muted">No installments defined yet.</td></tr>
+                    <tr><td colspan="6" class="text-muted">No installments defined yet.</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -185,40 +256,6 @@
     </div>
 @endif
 
-@push('scripts')
-<script>
-    $('#modal-edit-installment').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var modal = $(this);
-        var form = modal.find('form#edit-installment-form');
-        var id = button.data('id');
-        form.attr('action', '/accounting/installments/' + id);
 
-        form.find('[name="sequence"]').val(button.data('sequence'));
-        form.find('[name="label"]').val(button.data('label'));
-        form.find('[name="percentage"]').val(button.data('percentage'));
-        form.find('[name="fixed_amount"]').val(button.data('fixed_amount'));
-        form.find('[name="due_date"]').val(button.data('due_date'));
-        form.find('[name="grace_days"]').val(button.data('grace_days'));
-        form.find('[name="late_penalty_type"]').val(button.data('penalty_type'));
-        form.find('[name="late_penalty_value"]').val(button.data('penalty_value'));
-    });
-
-    $('#modal-add-installment').on('show.bs.modal', function () {
-        var maxSequence = 0;
-        $('#installments-table tbody tr').each(function () {
-            var value = parseInt($(this).find('td:first').text(), 10);
-            if (!isNaN(value)) {
-                maxSequence = Math.max(maxSequence, value);
-            }
-        });
-
-        var modal = $(this);
-        modal.find('input[name="sequence"]').val(maxSequence + 1);
-        modal.find('input[name="label"], input[name="percentage"], input[name="fixed_amount"], input[name="due_date"], input[name="grace_days"], input[name="late_penalty_value"]').val('');
-        modal.find('select[name="late_penalty_type"]').val('none');
-    });
-</script>
-@endpush
 
 @endsection

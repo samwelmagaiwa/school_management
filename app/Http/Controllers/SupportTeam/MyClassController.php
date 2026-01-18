@@ -49,6 +49,39 @@ class MyClassController extends Controller
         return Qs::jsonStoreOk();
     }
 
+    public function batch_store(\Illuminate\Http\Request $req)
+    {
+        $req->validate([
+            'names' => 'required|string',
+            'class_type_id' => 'required|exists:class_types,id',
+            'department_id' => 'nullable|integer|exists:departments,id',
+        ]);
+
+        $names = array_map('trim', explode(',', $req->names));
+        $created = 0;
+
+        foreach ($names as $name) {
+            if (empty($name)) continue;
+
+            $mc = $this->my_class->create([
+                'name' => $name,
+                'class_type_id' => $req->class_type_id,
+                'department_id' => $req->department_id,
+            ]);
+
+            // Create Default Section
+            $this->my_class->createSection([
+                'my_class_id' => $mc->id,
+                'name' => 'A',
+                'active' => 1,
+                'teacher_id' => NULL,
+            ]);
+            $created++;
+        }
+
+        return Qs::json($created . ' classes successfully created');
+    }
+
     public function edit($id)
     {
         $d['c'] = $c = $this->my_class->find($id);

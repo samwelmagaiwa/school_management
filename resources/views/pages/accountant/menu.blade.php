@@ -7,6 +7,12 @@
                 <a href="{{ route('accounting.fee-categories.index') }}"
                    class="nav-link {{ Route::is('accounting.fee-categories.*') ? 'active' : '' }}">Fee Categories</a>
             </li>
+            @if(Qs::userIsTeamSA())
+                <li class="nav-item">
+                    <a href="{{ route('accounting.periods.index') }}"
+                       class="nav-link {{ Route::is('accounting.periods.*') ? 'active' : '' }}">Academic Periods / Terms</a>
+                </li>
+            @endif
             <li class="nav-item">
                 <a href="{{ route('accounting.fee-structures.index') }}"
                    class="nav-link {{ Route::is('accounting.fee-structures.*') ? 'active' : '' }}">Fee Structures</a>

@@ -64,6 +64,7 @@ class StudentRecordController extends Controller
 
         $data['user_type'] = 'student';
         $data['name'] = ucwords($req->name);
+        $data['address'] = $data['address'] ?? 'No Address';
         $data['code'] = strtoupper(Str::random(10));
         $data['password'] = Hash::make('student');
         $data['photo'] = null;  // Will fall back to default via accessor

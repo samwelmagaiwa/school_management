@@ -5,7 +5,12 @@
             <div class="card-header bg-white header-elements-inline">
                 <h6 class="card-title">Please fill The form Below To Admit A New Student</h6>
 
-                {!! Qs::getPanelOptions() !!}
+                <div class="header-elements">
+                    <div class="custom-control custom-checkbox custom-control-right">
+                        <input type="checkbox" class="custom-control-input" id="quick_adm_toggle" name="quick_adm">
+                        <label class="custom-control-label font-weight-semibold text-primary" for="quick_adm_toggle">Quick Admission Mode</label>
+                    </div>
+                </div>
             </div>
 
             <form id="ajax-reg" method="post" enctype="multipart/form-data" class="wizard-form steps-validation" action="{{ route('students.store') }}" data-fouc>
@@ -20,15 +25,15 @@
                                 </div>
                             </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 non-quick">
                             <div class="form-group">
                                 <label>Address: <span class="text-danger">*</span></label>
-                                <input value="{{ old('address') }}" class="form-control" placeholder="Address" name="address" type="text" required>
+                                <input value="{{ old('address') }}" class="form-control non-quick-required" placeholder="Address" name="address" type="text" required>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row non-quick">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Email address: </label>
@@ -63,7 +68,7 @@
 
                     </div>
 
-                    <div class="row">
+                    <div class="row non-quick">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Date of Birth:</label>
@@ -75,7 +80,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="nal_id">Nationality: <span class="text-danger">*</span></label>
-                                <select onchange="getStatesByCountry(this.value)" data-placeholder="Choose..." required name="nal_id" id="nal_id" class="select-search form-control">
+                                <select onchange="getStatesByCountry(this.value)" data-placeholder="Choose..." required name="nal_id" id="nal_id" class="select-search form-control non-quick-required">
                                     <option value=""></option>
                                     @foreach($nationals as $nal)
                                         <option {{ (old('nal_id') == $nal->id ? 'selected' : '') }} value="{{ $nal->id }}">{{ $nal->name }}</option>
@@ -86,7 +91,7 @@
 
                         <div class="col-md-3">
                             <label for="state_id">State: <span class="text-danger">*</span></label>
-                            <select onchange="getLGA(this.value)" required data-placeholder="Choose.." class="select-search form-control" name="state_id" id="state_id">
+                            <select onchange="getLGA(this.value)" required data-placeholder="Choose.." class="select-search form-control non-quick-required" name="state_id" id="state_id">
                                 <option value=""></option>
                                 @foreach($states as $st)
                                     <option {{ (old('state_id') == $st->id ? 'selected' : '') }} value="{{ $st->id }}">{{ $st->name }}</option>
@@ -96,16 +101,16 @@
 
                         <div class="col-md-3">
                             <label for="lga_id">District: <span class="text-danger">*</span></label>
-                            <select onchange="getWards(this.value)" required data-placeholder="Select State First" class="select-search form-control" name="lga_id" id="lga_id">
+                            <select onchange="getWards(this.value)" required data-placeholder="Select State First" class="select-search form-control non-quick-required" name="lga_id" id="lga_id">
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row non-quick">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="ward">Ward: <span class="text-danger">*</span></label>
-                                <select onchange="getVillages(this.value)" required data-placeholder="Choose.." class="select-search form-control" name="ward" id="ward">
+                                <select onchange="getVillages(this.value)" required data-placeholder="Choose.." class="select-search form-control non-quick-required" name="ward" id="ward">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -114,7 +119,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="street">Street / Village: <span class="text-danger">*</span></label>
-                                <select onchange="getPlaces(this.value)" required data-placeholder="Choose.." class="select-search form-control" name="street" id="street">
+                                <select onchange="getPlaces(this.value)" required data-placeholder="Choose.." class="select-search form-control non-quick-required" name="street" id="street">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -129,7 +134,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row non-quick">
 
                         <div class="col-md-6">
                             <div class="form-group">
@@ -178,7 +183,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 non-quick">
                             <div class="form-group">
                                 <label for="my_parent_id">Parent: </label>
                                 <select data-placeholder="Choose..."  name="my_parent_id" id="my_parent_id" class="select-search form-control">
@@ -203,7 +208,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row non-quick">
                         <div class="col-md-3">
                             <label for="dorm_id">Dormitory: </label>
                             <select data-placeholder="Choose..."  name="dorm_id" id="dorm_id" class="select-search form-control js-dorm-select" data-target-room="#dorm_room_id" data-target-bed="#dorm_bed_id" data-selected-room="{{ old('dorm_room_id') }}" data-selected-bed="{{ old('dorm_bed_id') }}">
@@ -258,4 +263,26 @@
 
             </form>
         </div>
-    @endsection
+
+    <script>
+        $(document).ready(function() {
+            $('#quick_adm_toggle').on('change', function() {
+                var isQuick = $(this).is(':checked');
+                if (isQuick) {
+                    $('.non-quick').fadeOut();
+                    // Make non-essential required fields optional in the browser
+                    $('.non-quick-required').prop('required', false).removeClass('required');
+                    
+                    // Add a hidden input to the form to tell the backend it's a quick admission
+                    if ($('#quick_adm_input').length === 0) {
+                        $('#ajax-reg').append('<input type="hidden" name="quick_adm" id="quick_adm_input" value="1">');
+                    }
+                } else {
+                    $('.non-quick').fadeIn();
+                    $('.non-quick-required').prop('required', true).addClass('required');
+                    $('#quick_adm_input').remove();
+                }
+            });
+        });
+    </script>
+@endsection

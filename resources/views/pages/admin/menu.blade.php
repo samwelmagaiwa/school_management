@@ -15,6 +15,7 @@
     <a href="#" class="nav-link"><i class="icon-coins"></i> <span>Accounting Suite</span></a>
     <ul class="nav nav-group-sub" data-submenu-title="Accounting">
         <li class="nav-item"><a href="{{ route('accounting.fee-categories.index') }}" class="nav-link {{ Route::is('accounting.fee-categories.*') ? 'active' : '' }}">Fee Categories</a></li>
+        <li class="nav-item"><a href="{{ route('accounting.periods.index') }}" class="nav-link {{ Route::is('accounting.periods.*') ? 'active' : '' }}">Academic Periods / Terms</a></li>
         <li class="nav-item"><a href="{{ route('accounting.fee-structures.index') }}" class="nav-link {{ Route::is('accounting.fee-structures.*') ? 'active' : '' }}">Fee Structures</a></li>
         <li class="nav-item"><a href="{{ route('accounting.invoices.index') }}" class="nav-link {{ Route::is('accounting.invoices.*') ? 'active' : '' }}">Invoices &amp; Billing</a></li>
         <li class="nav-item"><a href="{{ route('accounting.payments.index') }}" class="nav-link {{ Route::is('accounting.payments.*') ? 'active' : '' }}">Payments &amp; Receipts</a></li>

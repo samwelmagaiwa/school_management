@@ -14,6 +14,7 @@ class FeeStructure extends Model
         'description',
         'academic_year',
         'academic_period_id',
+        'total_year_amount',
         'due_date',
         'status',
     ];
@@ -35,5 +36,13 @@ class FeeStructure extends Model
     public function items()
     {
         return $this->hasMany(FeeStructureItem::class);
+    }
+
+    /**
+     * Get all terms for this fee structure (NEW HIERARCHY).
+     */
+    public function terms()
+    {
+        return $this->hasMany(FeeStructureTerm::class);
     }
 }

@@ -42,6 +42,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('promotion/{fc?}/{fs?}/{tc?}/{ts?}', 'PromotionController@promotion')->name('students.promotion');
             Route::post('promote/{fc}/{fs}/{tc}/{ts}', 'PromotionController@promote')->name('students.promote');
 
+            /* Import */
+            Route::get('import', 'StudentImportController@index')->name('students.import');
+            Route::post('import', 'StudentImportController@store')->name('students.import.store');
+            Route::get('import/template', 'StudentImportController@download_template')->name('students.import.template');
         });
 
         /*************** Users *****************/
@@ -220,6 +224,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::resource('students', 'StudentRecordController');
         Route::resource('users', 'UserController');
+        Route::post('classes/batch', 'MyClassController@batch_store')->name('classes.batch_store');
         Route::resource('classes', 'MyClassController');
         Route::resource('sections', 'SectionController');
         Route::resource('subjects', 'SubjectController');
@@ -246,6 +251,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('fee-categories', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'index'])->name('accounting.fee-categories.index');
         Route::post('fee-categories', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'store'])->name('accounting.fee-categories.store');
         Route::put('fee-categories/{fee_category}', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'update'])->name('accounting.fee-categories.update');
+        Route::delete('fee-categories/{fee_category}', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'destroy'])->name('accounting.fee-categories.destroy');
+
+        Route::group(['middleware' => 'teamSA'], function () {
+            Route::get('periods', [\App\Http\Controllers\Accounting\AcademicPeriodController::class, 'index'])->name('accounting.periods.index');
+            Route::post('periods', [\App\Http\Controllers\Accounting\AcademicPeriodController::class, 'store'])->name('accounting.periods.store');
+            Route::put('periods/{period}', [\App\Http\Controllers\Accounting\AcademicPeriodController::class, 'update'])->name('accounting.periods.update');
+            Route::delete('periods/{period}', [\App\Http\Controllers\Accounting\AcademicPeriodController::class, 'destroy'])->name('accounting.periods.destroy');
+        });
 
         // Fee structures overview
         Route::get('fee-structures', [\App\Http\Controllers\Accounting\FeeStructureController::class, 'index'])->name('accounting.fee-structures.index');
@@ -271,6 +284,20 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::post('fee-structures/{structure}/billing/generate', [\App\Http\Controllers\Accounting\StudentBillingController::class, 'generateForStructure'])
                 ->name('accounting.fee-structures.billing.generate');
+            
+            // Term-based Structure Management (NEW)
+            Route::post('fee-structures/{structure}/terms', [\App\Http\Controllers\Accounting\FeeStructureTermController::class, 'storeTerms'])
+                ->name('accounting.fee-structures.terms.store');
+            Route::delete('terms/{term}', [\App\Http\Controllers\Accounting\FeeStructureTermController::class, 'destroyTerm'])
+                ->name('accounting.terms.destroy');
+            
+            // Term → Installments
+            Route::post('terms/{term}/installments', [\App\Http\Controllers\Accounting\FeeStructureTermController::class, 'storeInstallments'])
+                ->name('accounting.terms.installments.store');
+            
+            // Installments → Items
+            Route::post('installments/{installment}/items', [\App\Http\Controllers\Accounting\FeeStructureTermController::class, 'storeInstallmentItems'])
+                ->name('accounting.installments.items.store');
         });
 
         // Invoices & payments
@@ -292,7 +319,23 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('periods/{period}/unlock', [\App\Http\Controllers\Accounting\AccountingActionController::class, 'unlockPeriod'])->name('accounting.periods.unlock');
 
         // Expenses & reports
-        Route::get('expenses', [\App\Http\Controllers\Accounting\ExpenseController::class, 'index'])->name('accounting.expenses.index');
+        Route::resource('expenses', \App\Http\Controllers\Accounting\ExpenseController::class)
+            ->except(['create', 'show', 'edit'])
+            ->names([
+                'index' => 'accounting.expenses.index',
+                'store' => 'accounting.expenses.store',
+                'update' => 'accounting.expenses.update',
+                'destroy' => 'accounting.expenses.destroy',
+            ]);
+        Route::resource('vendors', \App\Http\Controllers\Accounting\VendorController::class)
+            ->except(['create', 'show', 'edit'])
+            ->names([
+                'index' => 'accounting.vendors.index',
+                'store' => 'accounting.vendors.store',
+                'update' => 'accounting.vendors.update',
+                'destroy' => 'accounting.vendors.destroy',
+            ]);
+        
         Route::get('reports', [\App\Http\Controllers\Accounting\ReportController::class, 'index'])->name('accounting.reports.index');
     });
 

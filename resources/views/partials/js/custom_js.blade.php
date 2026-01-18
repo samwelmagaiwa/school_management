@@ -350,22 +350,64 @@
             enableBtn(btn);
             formType == 'store' ? clearForm(form) : '';
             scrollTo('body');
+            
+            // Trigger custom event for specific page handling (like wizard tab switching)
+            if (resp.ok) {
+                form.trigger('ajax:success', [resp]);
+            }
+            
             return resp;
         });
         req.fail(function(e){
+            // Determine error content
+            var errors = [];
             if (e.status == 422){
-                var errors = e.responseJSON.errors;
-                displayAjaxErr(errors);
+                errors = e.responseJSON.errors;
+            } else if(e.status == 500){
+                if (e.responseJSON && (e.responseJSON.message || e.responseJSON.errors)) {
+                    errors = [e.responseJSON.message];
+                    if (e.responseJSON.errors) {
+                        $.each(e.responseJSON.errors, function(key, val) {
+                            errors.push(Array.isArray(val) ? val[0] : val);
+                        });
+                    }
+                } else {
+                    errors = [e.status + ' ' + e.statusText + ' Please Check for Duplicate entry or Contact School Administrator/IT Personnel'];
+                }
+            } else if(e.status == 404){
+                errors = [e.status + ' ' + e.statusText + ' - Requested Resource or Record Not Found'];
+            } else {
+                errors = [e.status + ' ' + e.statusText];
             }
-           if(e.status == 500){
-               displayAjaxErr([e.status + ' ' + e.statusText + ' Please Check for Duplicate entry or Contact School Administrator/IT Personnel'])
-           }
-            if(e.status == 404){
-               displayAjaxErr([e.status + ' ' + e.statusText + ' - Requested Resource or Record Not Found'])
-           }
+
+            // Display errors (Modal or Global)
+            showFormErrors(form, errors);
+
             enableBtn(btn);
             return e.status;
         });
+    }
+
+    function showFormErrors(form, errors) {
+        var modal = form.closest('.modal');
+        if (modal.length) {
+            // Remove existing alerts in modal
+            modal.find('.alert').remove();
+            
+            var errHtml = '<div class="alert alert-danger border-0 alert-dismissible" id="modal-ajax-msg"><button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>';
+            $.each(errors, function(k, v){
+                // Handle both array of strings (500) and object of arrays (422)
+                var msg = Array.isArray(v) ? v[0] : v;
+                errHtml += '<span><i class="icon-arrow-right5"></i> '+ msg +'</span><br/>';
+            });
+            errHtml += '</div>';
+            
+            modal.find('.modal-body').prepend(errHtml);
+            modal.animate({ scrollTop: 0 }, 'slow');
+        } else {
+            // Fallback to global
+            displayAjaxErr(errors);
+        }
     }
 
     function disableBtn(btn){
