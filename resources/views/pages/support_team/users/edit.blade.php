@@ -14,7 +14,7 @@
                 <h6>Personal Data</h6>
                 <fieldset>
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="user_type"> Select User: <span class="text-danger">*</span></label>
                                 <select {{ Qs::userIsSuperAdmin() ? '' : 'disabled="disabled"' }} class="form-control select" name="user_type" id="user_type">
@@ -31,12 +31,25 @@
 
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label for="secondary_roles">Secondary Roles:</label>
+                                <select multiple class="form-control select" name="secondary_roles[]" id="secondary_roles">
+                                    @foreach($user_types as $ut)
+                                        <option {{ $user->secondary_roles->contains('id', $ut->id) ? 'selected' : '' }} value="{{ $ut->id }}">{{ strtoupper($ut->name) }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="form-group">
                                 <label>Full Name: <span class="text-danger">*</span></label>
                                 <input value="{{ $user->name }}" required type="text" name="name" placeholder="Full Name" class="form-control">
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Address: <span class="text-danger">*</span></label>
                                 <input value="{{ $user->address }}" class="form-control" placeholder="Address" name="address" type="text" required>

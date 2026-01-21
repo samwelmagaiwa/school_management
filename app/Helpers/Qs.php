@@ -135,6 +135,11 @@ class Qs
 
     public static function decodeHash($str, $toString = true)
     {
+        // If it's already a number, return it (safeguard)
+        if (is_numeric($str)) {
+            return $toString ? (string)$str : [(int)$str];
+        }
+
         // Check if we received a JSON object instead of a hash
         if (is_string($str) && (str_starts_with($str, '{') || str_starts_with($str, '['))) {
             \Log::error('DecodeHash received JSON object instead of hash string', [
@@ -169,28 +174,57 @@ class Qs
 
     public static function userIsTeamAccount()
     {
-        return in_array(Auth::user()->user_type, self::getTeamAccount());
+        return in_array(Auth::user()->user_type, self::getTeamAccount()) || Auth::user()->hasPermission('payment.view');
     }
 
     public static function userIsTeamSA()
     {
-        return in_array(Auth::user()->user_type, self::getTeamSA());
+        return in_array(Auth::user()->user_type, self::getTeamSA()) ||
+            Auth::user()->hasPermission('dept.manage') ||
+            Auth::user()->hasPermission('class.manage') ||
+            Auth::user()->hasPermission('user.view');
     }
 
     public static function userIsTeamSAT()
     {
-        return in_array(Auth::user()->user_type, self::getTeamSAT());
+        return in_array(Auth::user()->user_type, self::getTeamSAT()) ||
+            Auth::user()->hasPermission('marks.manage') ||
+            Auth::user()->hasPermission('student.view') ||
+            Auth::user()->hasPermission('exam.manage');
     }
 
     public static function userIsAcademic()
     {
-        return in_array(Auth::user()->user_type, self::getTeamAcademic());
+        return in_array(Auth::user()->user_type, self::getTeamAcademic()) || Auth::user()->hasPermission('academic.manage');
     }
 
     public static function userIsAdministrative()
     {
-        return in_array(Auth::user()->user_type, self::getTeamAdministrative());
+        return in_array(Auth::user()->user_type, self::getTeamAdministrative()) ||
+            Auth::user()->hasPermission('payment.view') ||
+            Auth::user()->hasPermission('user.view');
     }
+
+    public static function getTeamInventory()
+    {
+        return ['admin', 'super_admin', 'super_adm', 'storekeeper'];
+    }
+
+    public static function userIsTeamInventory()
+    {
+        return in_array(Auth::user()->user_type, self::getTeamInventory()) || Auth::user()->hasPermission('inventory.manage');
+    }
+
+    public static function getTeamTransport()
+    {
+        return ['admin', 'super_admin', 'super_adm', 'transport_officer'];
+    }
+
+    public static function userIsTeamTransport()
+    {
+        return in_array(Auth::user()->user_type, self::getTeamTransport()) || Auth::user()->hasPermission('transport.manage');
+    }
+
 
     public static function userIsAdmin()
     {

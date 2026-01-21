@@ -73,5 +73,7 @@ class Kernel extends HttpKernel
         'my_parent' => \App\Http\Middleware\Custom\MyParent::class,
         'libraryManager' => \App\Http\Middleware\Custom\LibrarianOrAdmin::class,
         'custom.hostel' => \App\Http\Middleware\Custom\HostelOfficerOrAdmin::class,
+        'teamInventory' => \App\Http\Middleware\Custom\TeamInventory::class,
+        'teamTransport' => \App\Http\Middleware\Custom\TeamTransport::class,
     ];
 }

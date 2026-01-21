@@ -22,12 +22,25 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'role.edit', 'title' => 'Edit Roles', 'description' => 'Can edit roles'],
             ['name' => 'role.delete', 'title' => 'Delete Roles', 'description' => 'Can delete roles'],
             ['name' => 'role.assign', 'title' => 'Assign Permissions', 'description' => 'Can assign permissions to roles'],
-            
+
+            ['name' => 'dept.manage', 'title' => 'Manage Departments', 'description' => 'Can manage departments'],
+            ['name' => 'dorm.manage', 'title' => 'Manage Dorms', 'description' => 'Can manage dormitories'],
+            ['name' => 'class.manage', 'title' => 'Manage Classes', 'description' => 'Can manage classes'],
+            ['name' => 'section.manage', 'title' => 'Manage Sections', 'description' => 'Can manage sections'],
+            ['name' => 'subject.manage', 'title' => 'Manage Subjects', 'description' => 'Can manage subjects'],
+
+            ['name' => 'student.view', 'title' => 'View Students', 'description' => 'Can view student list and profiles'],
+            ['name' => 'student.admit', 'title' => 'Admit Students', 'description' => 'Can admit new students'],
+            ['name' => 'student.promote', 'title' => 'Promote Students', 'description' => 'Can promote or manage promotions'],
+            ['name' => 'student.graduate', 'title' => 'Graduate Students', 'description' => 'Can view/manage graduated students'],
+
+            ['name' => 'academic.manage', 'title' => 'Manage Academics', 'description' => 'Can manage timetables and attendance'],
+
             ['name' => 'exam.manage', 'title' => 'Manage Exams', 'description' => 'Can manage exam settings'],
             ['name' => 'exam.view_stats', 'title' => 'View Exam Stats', 'description' => 'Can view exam statistics'],
             ['name' => 'marks.manage', 'title' => 'Manage Marks', 'description' => 'Can enter and manage marks'],
             ['name' => 'marks.bulk_report', 'title' => 'Bulk Report Cards', 'description' => 'Can generate bulk report cards'],
-            
+
             ['name' => 'payment.view', 'title' => 'View Payments', 'description' => 'Can view payment records'],
             ['name' => 'payment.record', 'title' => 'Record Payment', 'description' => 'Can record new payments'],
             ['name' => 'settings.manage', 'title' => 'Manage Settings', 'description' => 'Can manage system settings'],

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 
@@ -178,6 +179,21 @@ class UserController extends Controller
             }
         }
 
+        // Sync Secondary Roles (skip if not provided or empty)
+        if ($req->has('secondary_roles')) {
+            $user->secondary_roles()->sync($req->secondary_roles);
+        } else {
+             // If not provided, assume we want to clear them? Or strict check? 
+             // Typically in generic update form, if field is missing it might mean no change or empty.
+             // Given it's a multi-select, if user unselects all, it sends nothing? Or empty array?
+             // Usually it sends nothing if removed from DOM, but valid form sends empty array if nothing selected.
+             // Let's assume if the key 'secondary_roles' is present (even if null/empty) we sync.
+             // But we need to be careful not to wipe if field was hidden.
+             if ($req->exists('secondary_roles')) { // Logic: only update if field was submitted
+                 $user->secondary_roles()->detach();
+             }
+        }
+
         $this->user->update($id, $data);   /* UPDATE USER RECORD */
 
         /* UPDATE STAFF RECORD */
@@ -245,9 +261,13 @@ class UserController extends Controller
         $data = $req->only(['name', 'level']);
         $data['title'] = Str::slug($req->name, '_');
 
-        $this->user->createType($data);
+        $ut = $this->user->createType($data);
 
-        return Qs::jsonStoreOk();
+        return response()->json([
+            'ok' => true,
+            'msg' => __('msg.store_ok'),
+            'ad' => Qs::hash($ut->id)
+        ]);
     }
 
     public function managePermissions($id)
@@ -263,6 +283,27 @@ class UserController extends Controller
         $d['user_permissions'] = $d['user']->permissions->pluck('id')->toArray();
 
         return view('pages.support_team.users.permissions', $d);
+    }
+
+    public function updateRolePermissions(\Illuminate\Http\Request $req, $id)
+    {
+        $raw_id = $id;
+        $id = Qs::decodeHash($id);
+        $ut = $this->user->findType($id);
+
+        if (!$ut) {
+            \Log::error('Role permission update failed: Role not found', [
+                'provided_id' => $raw_id,
+                'decoded_id' => $id,
+                'user_id' => Auth::id()
+            ]);
+            return Qs::json('Role not found (ID: '.$id.')', false);
+        }
+
+        $permissions = $req->permissions ?? [];
+        $ut->permissions()->sync($permissions);
+
+        return Qs::jsonUpdateOk();
     }
 
     public function updateUserPermissions(\Illuminate\Http\Request $req, $id)

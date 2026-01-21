@@ -28,7 +28,7 @@ class UserRequest extends FormRequest
             'phone' => 'sometimes|nullable|string|min:6|max:20',
             'email' => 'sometimes|nullable|email|max:100|unique:users',
             'username' => 'sometimes|nullable|alpha_dash|min:8|max:100|unique:users',
-            'photo' => 'sometimes|nullable|image|mimes:jpeg,gif,png,jpg|max:2048',
+            'photo' => 'required|image|mimes:jpeg,gif,png,jpg|max:2048',
 'address' => 'required|string|min:6|max:120',
             'state_id' => 'required',
             'lga_id' => 'required',
@@ -56,6 +56,16 @@ class UserRequest extends FormRequest
         }
 
         return ($this->method() === 'POST') ? $store : $update;
+    }
+
+    public function messages()
+    {
+        return [
+            'photo.required' => 'A passport photo is required for registration. Please upload a clear image to continue.',
+            'photo.image' => 'The uploaded file must be a valid image.',
+            'photo.mimes' => 'Only JPEG and PNG formats are accepted for passport photos.',
+            'photo.max' => 'The image size should not exceed 2MB.',
+        ];
     }
 
     public function attributes()

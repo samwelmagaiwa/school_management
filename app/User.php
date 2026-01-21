@@ -121,6 +121,11 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Models\Permission::class);
     }
 
+    public function secondary_roles()
+    {
+        return $this->belongsToMany(\App\Models\UserType::class, 'role_user', 'user_id', 'user_type_id');
+    }
+
     public function hasPermission($permission_name)
     {
         // Check if user has permission directly
@@ -128,9 +133,18 @@ class User extends Authenticatable
             return true;
         }
 
-        // Check if user has permission through role
+        // Check if user has permission through role (Primary)
         if ($this->user_type_rec && $this->user_type_rec->permissions->contains('name', $permission_name)) {
             return true;
+        }
+
+        // Check if user has permission through secondary roles
+        if ($this->secondary_roles->count() > 0) {
+            foreach($this->secondary_roles as $role) {
+                if ($role->permissions->contains('name', $permission_name)) {
+                    return true;
+                }
+            }
         }
 
         return false;

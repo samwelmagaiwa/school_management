@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => 'users'], function(){
             Route::get('reset_pass/{id}', 'UserController@reset_pass')->name('users.reset_pass');
             Route::post('store_role', 'UserController@storeRole')->name('users.store_role');
+            Route::put('roles/permissions/{id}', 'UserController@updateRolePermissions')->name('users.roles.permissions.update');
             Route::get('permissions/{id}', 'UserController@managePermissions')->name('users.permissions');
             Route::put('permissions/{id}', 'UserController@updateUserPermissions')->name('users.permissions.update');
         });
@@ -271,6 +272,43 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('payments', 'PaymentController');
  
      });
+
+    /*************** Inventory & Warehouse *****************/
+    Route::group(['prefix' => 'inventory', 'middleware' => 'teamInventory'], function() {
+        Route::get('/', [\App\Http\Controllers\Inventory\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('categories', [\App\Http\Controllers\Inventory\InventoryController::class, 'manageCategories'])->name('inventory.categories');
+        Route::post('categories', [\App\Http\Controllers\Inventory\InventoryController::class, 'storeCategory'])->name('inventory.categories.store');
+        
+        Route::post('items', [\App\Http\Controllers\Inventory\InventoryController::class, 'storeItem'])->name('inventory.items.store');
+        Route::put('items/{item}', [\App\Http\Controllers\Inventory\InventoryController::class, 'updateItem'])->name('inventory.items.update');
+
+        Route::resource('warehouses', \App\Http\Controllers\Inventory\WarehouseController::class)->names([
+            'index' => 'inventory.warehouses.index',
+            'store' => 'inventory.warehouses.store',
+            'update' => 'inventory.warehouses.update',
+            'show' => 'inventory.warehouses.show',
+        ]);
+        
+        // Stock Operations
+        Route::get('stocks/receive', [\App\Http\Controllers\Inventory\StockController::class, 'create'])->name('inventory.stocks.create');
+        Route::post('stocks/receive', [\App\Http\Controllers\Inventory\StockController::class, 'store'])->name('inventory.stocks.store');
+        
+        Route::resource('requisitions', \App\Http\Controllers\Inventory\RequisitionController::class)->names([
+            'index' => 'inventory.requisitions.index',
+            'store' => 'inventory.requisitions.store',
+        ]);
+        Route::post('requisitions/{id}/approve', [\App\Http\Controllers\Inventory\RequisitionController::class, 'approve'])->name('inventory.requisitions.approve');
+        Route::post('requisitions/{id}/issue', [\App\Http\Controllers\Inventory\RequisitionController::class, 'issue'])->name('inventory.requisitions.issue');
+    });
+
+    /*************** Transport *****************/
+    Route::group(['prefix' => 'transport', 'middleware' => 'teamTransport'], function() {
+        Route::get('/', [\App\Http\Controllers\Transport\TransportController::class, 'index'])->name('transport.index');
+        Route::post('vehicles', [\App\Http\Controllers\Transport\TransportController::class, 'storeVehicle'])->name('transport.vehicles.store');
+        Route::post('trips', [\App\Http\Controllers\Transport\TransportController::class, 'storeTrip'])->name('transport.trips.store');
+        Route::post('trips/{id}/complete', [\App\Http\Controllers\Transport\TransportController::class, 'completeTrip'])->name('transport.trips.complete');
+        Route::post('fuel', [\App\Http\Controllers\Transport\TransportController::class, 'storeFuel'])->name('transport.fuel.store');
+    });
 
     Route::group(['prefix' => 'accounting', 'middleware' => 'teamAccount'], function () {
         Route::get('fee-categories', [\App\Http\Controllers\Accounting\FeeCategoryController::class, 'index'])->name('accounting.fee-categories.index');

@@ -193,8 +193,8 @@
                                 {{--PASSPORT--}}
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="d-block">Upload Passport Photo:</label>
-                                        <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo" class="form-input-styled" data-fouc>
+                                        <label class="d-block">Upload Passport Photo: <span class="text-danger">*</span></label>
+                                        <input value="{{ old('photo') }}" accept="image/*" required type="file" name="photo" class="form-input-styled" data-fouc>
                                         <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
                                     </div>
                                 </div>
@@ -333,13 +333,19 @@
                         }
                         .compact-td { padding: 2px !important; width: 20px !important; font-size: 11px; }
                         .role-name { font-size: 11px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                        .edit-mode { background-color: #f0f9ff; }
                     </style>
+
+                    @php
+                        $edit_role_id = request('edit_role') ? Qs::decodeHash(request('edit_role')) : null;
+                    @endphp
+
                     <div class="table-responsive">
                         <table class="table table-bordered table-condensed table-xs">
                             <thead>
                             <tr>
                                 <th style="width: 30px;" class="p-1 text-center">S/N</th>
-                                <th style="width: 120px;" class="p-1">Role</th>
+                                <th style="width: 150px;" class="p-1">Role / Action</th>
                                 @foreach($permissions as $p)
                                     <th class="perm-header text-center" title="{{ $p->name }}">
                                         <span>{{ $p->title }}</span>
@@ -349,24 +355,79 @@
                             </thead>
                             <tbody>
                             @foreach($all_user_types as $ut)
-                                <tr>
+                                <tr class="{{ $edit_role_id == $ut->id ? 'edit-mode' : '' }}">
                                     <td class="text-center p-1">{{ $loop->iteration }}</td>
-                                    <td class="p-1"><span class="role-name" title="{{ strtoupper($ut->name) }}"><strong>{{ strtoupper($ut->name) }}</strong></span></td>
-                                    @foreach($permissions as $p)
-                                        <td class="text-center compact-td">
-                                            @if($ut->permissions->contains($p->id))
-                                                <i class="icon-check text-success" style="font-size: 10px;"></i>
+                                    <td class="p-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="role-name" title="{{ strtoupper($ut->name) }}"><strong>{{ strtoupper($ut->name) }}</strong></span>
+                                            @if($edit_role_id == $ut->id)
+                                                <button type="submit" form="form-role-{{ Qs::hash($ut->id) }}" class="btn btn-xs btn-success p-0 px-1" title="Save Permissions"><i class="icon-checkmark4"></i> Asign</button>
                                             @else
-                                                <i class="icon-cross2 text-danger" style="font-size: 10px;"></i>
+                                                <a href="{{ request()->fullUrlWithQuery(['edit_role' => Qs::hash($ut->id)]) }}#view-permissions" class="text-primary ml-1" title="Edit Permissions"><i class="icon-pencil5 font-size-sm"></i></a>
                                             @endif
+                                        </div>
+                                    </td>
+                                    @if($edit_role_id == $ut->id)
+                                        <td colspan="{{ count($permissions) }}" class="p-0">
+                                            <form id="form-role-{{ Qs::hash($ut->id) }}" class="ajax-update" method="post" action="{{ route('users.roles.permissions.update', Qs::hash($ut->id)) }}">
+                                                @csrf @method('put')
+                                                <table class="table table-bordered m-0">
+                                                    <tr>
+                                                        @foreach($permissions as $p)
+                                                            <td class="text-center compact-td">
+                                                                <input type="checkbox" name="permissions[]" value="{{ $p->id }}" {{ $ut->permissions->contains($p->id) ? 'checked' : '' }}>
+                                                            </td>
+                                                        @endforeach
+                                                    </tr>
+                                                </table>
+                                            </form>
                                         </td>
-                                    @endforeach
+                                    @else
+                                        @foreach($permissions as $p)
+                                            <td class="text-center compact-td">
+                                                @if($ut->permissions->contains($p->id))
+                                                    <i class="icon-check text-success" style="font-size: 10px;"></i>
+                                                @else
+                                                    <i class="icon-cross2 text-danger" style="font-size: 10px;"></i>
+                                                @endif
+                                            </td>
+                                        @endforeach
+                                    @endif
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <script>
+                    $(document).ready(function() {
+                        // Handle automatic jump after role creation
+                        $('form.ajax-store[action*="store_role"]').on('ajax:success', function(e, data) {
+                            if (data && data.ok && data.ad) {
+                                // Construct the URL with edit_role and hash
+                                const baseUrl = window.location.href.split('?')[0];
+                                window.location.href = baseUrl + '?edit_role=' + data.ad + '#view-permissions';
+                            }
+                        });
+
+                        // Handle redirection after permission assignment update
+                        $('form.ajax-update[id^="form-role-"]').on('ajax:success', function(e, data) {
+                            if (data && data.ok) {
+                                // Redirect to clear the edit_role parameter and return to "view" mode
+                                setTimeout(function() {
+                                    const baseUrl = window.location.href.split('?')[0];
+                                    window.location.href = baseUrl + '#view-permissions';
+                                }, 500); // Small delay to allow success notification to be seen
+                            }
+                        });
+
+                        // Auto-scroll to view-permissions if hash is present
+                        if(window.location.hash === '#view-permissions') {
+                             $('.nav-tabs a[href="#view-permissions"]').tab('show');
+                        }
+                    });
+                </script>
 
             </div>
         </div>
