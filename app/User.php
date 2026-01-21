@@ -111,6 +111,31 @@ class User extends Authenticatable
         return $this->hasMany(StaffRecord::class);
     }
 
+    public function user_type_rec()
+    {
+        return $this->belongsTo(\App\Models\UserType::class, 'user_type', 'title');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(\App\Models\Permission::class);
+    }
+
+    public function hasPermission($permission_name)
+    {
+        // Check if user has permission directly
+        if ($this->permissions->contains('name', $permission_name)) {
+            return true;
+        }
+
+        // Check if user has permission through role
+        if ($this->user_type_rec && $this->user_type_rec->permissions->contains('name', $permission_name)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function getIsOnlineAttribute(): bool
     {
         return Cache::has($this->onlineCacheKey());

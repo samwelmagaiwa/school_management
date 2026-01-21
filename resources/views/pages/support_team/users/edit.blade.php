@@ -17,8 +17,14 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="user_type"> Select User: <span class="text-danger">*</span></label>
-                                <select disabled="disabled" class="form-control select" id="user_type">
-                                    <option value="">{{ strtoupper($user->user_type) }}</option>
+                                <select {{ Qs::userIsSuperAdmin() ? '' : 'disabled="disabled"' }} class="form-control select" name="user_type" id="user_type">
+                                    @if(!Qs::userIsSuperAdmin())
+                                        <option value="">{{ strtoupper($user->user_type) }}</option>
+                                    @else
+                                        @foreach($user_types as $ut)
+                                            <option {{ $user->user_type == $ut->title ? 'selected' : '' }} value="{{ Qs::hash($ut->id) }}">{{ strtoupper($ut->name) }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>

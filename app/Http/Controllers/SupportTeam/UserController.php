@@ -34,6 +34,8 @@ class UserController extends Controller
         $ut2 = $ut->where('level', '>', 2);
 
         $d['user_types'] = Qs::userIsAdmin() ? $ut2 : $ut;
+        $d['all_user_types'] = $ut; // For Role Management tab
+        $d['permissions'] = $this->user->getAllPermissions(); // For Permissions tab
         $d['states'] = $this->loc->getStates();
         $d['users'] = $this->user->getPTAUsers();
         $d['nationals'] = $this->loc->getAllNationals();
@@ -50,6 +52,7 @@ class UserController extends Controller
         $d['users'] = $this->user->getPTAUsers();
         $d['blood_groups'] = $this->user->getBloodGroups();
         $d['nationals'] = $this->loc->getAllNationals();
+        $d['user_types'] = $this->user->getAllTypes();
 
         // Get Ward and Village objects if they exist
         $d['ward'] = $user->ward ? DB::table('wards')->where('name', $user->ward)->where('lga_id', $user->lga_id)->first() : null;
@@ -142,7 +145,13 @@ class UserController extends Controller
 
         $data = $req->except(Qs::getStaffRecord());
         $data['name'] = ucwords($req->name);
-        $data['user_type'] = $user_type;
+
+        // Allow Super Admin to change user type
+        if (Qs::userIsSuperAdmin() && $req->has('user_type')) {
+            $data['user_type'] = $this->user->findType(Qs::decodeHash($req->user_type))->title;
+        } else {
+            $data['user_type'] = $user_type;
+        }
 
         if($user_is_staff && !$user_is_teamSA){
             $data['username'] = Qs::getAppCode().'/STAFF/'.date('Y/m', strtotime($req->emp_date)).'/'.mt_rand(1000, 9999);
@@ -216,6 +225,60 @@ class UserController extends Controller
         $this->user->delete($user->id);
 
         return back()->with('flash_success', __('msg.del_ok'));
+    }
+
+    public function storeRole(\Illuminate\Http\Request $req)
+    {
+        $req->validate([
+            'name' => 'required|string|max:50|unique:user_types,name',
+            'level' => 'required|numeric|min:1|max:10',
+        ]);
+
+        if (Qs::userIsAdmin() && $req->level <= 2) {
+             return Qs::json('You cannot create a role with level 1 or 2', false);
+        }
+
+        if (Qs::userIsSuperAdmin() && $req->level == 1 && $req->name != 'super_admin') {
+             // Optional: prevent creating other level 1 roles if needed, or allow it
+        }
+
+        $data = $req->only(['name', 'level']);
+        $data['title'] = Str::slug($req->name, '_');
+
+        $this->user->createType($data);
+
+        return Qs::jsonStoreOk();
+    }
+
+    public function managePermissions($id)
+    {
+        $id = Qs::decodeHash($id);
+        $d['user'] = $this->user->find($id);
+
+        if (!$d['user']) {
+            return back()->with('flash_danger', 'User not found');
+        }
+
+        $d['permissions'] = $this->user->getAllPermissions();
+        $d['user_permissions'] = $d['user']->permissions->pluck('id')->toArray();
+
+        return view('pages.support_team.users.permissions', $d);
+    }
+
+    public function updateUserPermissions(\Illuminate\Http\Request $req, $id)
+    {
+        $id = Qs::decodeHash($id);
+        $user = $this->user->find($id);
+
+        if (!$user) {
+            return Qs::json('User not found', false);
+        }
+
+        $permissions = $req->permissions ?? [];
+
+        $user->permissions()->sync($permissions);
+
+        return Qs::jsonUpdateOk();
     }
 
     protected function userTeachesSubject($user)

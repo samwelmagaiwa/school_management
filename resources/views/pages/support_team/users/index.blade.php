@@ -19,6 +19,8 @@
                         @endforeach
                     </div>
                 </li>
+                <li class="nav-item"><a href="#manage-roles" class="nav-link" data-toggle="tab">Create Role</a></li>
+                <li class="nav-item"><a href="#view-permissions" class="nav-link" data-toggle="tab">View Permissions</a></li>
             </ul>
 
             <div class="tab-content">
@@ -242,6 +244,8 @@
                                                 @if(Qs::userIsSuperAdmin())
 
                                                         <a href="{{ route('users.reset_pass', Qs::hash($u->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Reset password</a>
+                                                        {{--Manage Permissions--}}
+                                                        <a href="{{ route('users.permissions', Qs::hash($u->id)) }}" class="dropdown-item"><i class="icon-shield-check"></i> Permissions</a>
                                                         {{--Delete--}}
                                                         <a id="{{ Qs::hash($u->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Delete</a>
                                                         <form method="post" id="item-delete-{{ Qs::hash($u->id) }}" action="{{ route('users.destroy', Qs::hash($u->id)) }}" class="hidden">@csrf @method('delete')</form>
@@ -257,6 +261,112 @@
                         </table>
                     </div>
                 @endforeach
+
+                {{--Manage Roles--}}
+                <div class="tab-pane fade" id="manage-roles">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <table class="table datatable-button-html5-columns">
+                                <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>Name</th>
+                                    <th>Title</th>
+                                    <th>Level</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($all_user_types as $ut)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $ut->name }}</td>
+                                        <td>{{ $ut->title }}</td>
+                                        <td>{{ $ut->level }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title">Create New Role</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form class="ajax-store" method="post" action="{{ route('users.store_role') }}">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label>Role Name: <span class="text-danger">*</span></label>
+                                            <input required type="text" name="name" class="form-control" placeholder="e.g. Technical Assistant">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Level: <span class="text-danger">*</span></label>
+                                            <input required type="number" name="level" min="3" max="10" class="form-control" placeholder="Level (3-10)">
+                                            <span class="text-muted">Admins can create level 3-10 roles.</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <button type="submit" class="btn btn-primary">Create Role <i class="icon-paperplane ml-2"></i></button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{--View Permissions--}}
+                <div class="tab-pane fade" id="view-permissions">
+                    <style>
+                        .perm-header {
+                            white-space: nowrap;
+                            height: 120px;
+                            vertical-align: bottom;
+                            padding: 2px !important;
+                        }
+                        .perm-header span {
+                            writing-mode: vertical-rl;
+                            transform: rotate(180deg);
+                            font-size: 10px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            line-height: 1;
+                        }
+                        .compact-td { padding: 2px !important; width: 20px !important; font-size: 11px; }
+                        .role-name { font-size: 11px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                    </style>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-condensed table-xs">
+                            <thead>
+                            <tr>
+                                <th style="width: 30px;" class="p-1 text-center">S/N</th>
+                                <th style="width: 120px;" class="p-1">Role</th>
+                                @foreach($permissions as $p)
+                                    <th class="perm-header text-center" title="{{ $p->name }}">
+                                        <span>{{ $p->title }}</span>
+                                    </th>
+                                @endforeach
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($all_user_types as $ut)
+                                <tr>
+                                    <td class="text-center p-1">{{ $loop->iteration }}</td>
+                                    <td class="p-1"><span class="role-name" title="{{ strtoupper($ut->name) }}"><strong>{{ strtoupper($ut->name) }}</strong></span></td>
+                                    @foreach($permissions as $p)
+                                        <td class="text-center compact-td">
+                                            @if($ut->permissions->contains($p->id))
+                                                <i class="icon-check text-success" style="font-size: 10px;"></i>
+                                            @else
+                                                <i class="icon-cross2 text-danger" style="font-size: 10px;"></i>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
             </div>
         </div>

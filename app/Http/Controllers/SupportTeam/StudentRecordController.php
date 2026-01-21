@@ -138,10 +138,14 @@ class StudentRecordController extends Controller
 
     public function show($sr_id)
     {
+        $raw = $sr_id;
         $sr_id = Qs::decodeHash($sr_id);
-        if(!$sr_id){return Qs::goWithDanger();}
+        if(!$sr_id){return Qs::goWithDanger('dashboard', 'Error: Invalid Student Hash ('.$raw.')');}
 
-        $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
+        $sr = \App\Models\StudentRecord::with('user')->find($sr_id);
+        if(!$sr){return Qs::goWithDanger('dashboard', 'Error: Student Record Not Found');}
+
+        $data['sr'] = $sr;
 
         /* Prevent Other Students/Parents from viewing Profile of others */
         if(Auth::user()->id != $data['sr']->user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)){
@@ -153,10 +157,13 @@ class StudentRecordController extends Controller
 
     public function edit($sr_id)
     {
+        $raw = $sr_id;
         $sr_id = Qs::decodeHash($sr_id);
-        if(!$sr_id){return Qs::goWithDanger();}
+        if(!$sr_id){return Qs::goWithDanger('dashboard', 'Error: Invalid Student Hash ('.$raw.')');}
 
-        $sr = $this->student->getRecord(['id' => $sr_id])->first();
+        $sr = \App\Models\StudentRecord::find($sr_id);
+        if(!$sr){return Qs::goWithDanger('dashboard', 'Error: Student Record Not Found');}
+
         $data['sr'] = $sr;
         $data['my_classes'] = $this->my_class->all();
         $data['parents'] = $this->user->getUserByType('parent');
@@ -177,7 +184,7 @@ class StudentRecordController extends Controller
         $sr_id = Qs::decodeHash($sr_id);
         if(!$sr_id){return Qs::goWithDanger();}
 
-        $sr = $this->student->getRecord(['id' => $sr_id])->first();
+        $sr = \App\Models\StudentRecord::find($sr_id);
         $d =  $req->only(Qs::getUserRecord());
         $d['name'] = ucwords($req->name);
 

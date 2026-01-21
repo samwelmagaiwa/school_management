@@ -18,6 +18,7 @@ class GradeUpdate extends FormRequest
             'name' => 'required|string',
             'mark_from' => 'required|numeric',
             'mark_to' => 'required|numeric',
+            'point' => 'nullable|numeric|min:0|max:10',
         ];
     }
 

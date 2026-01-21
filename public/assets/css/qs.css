@@ -93,15 +93,14 @@
     }
 }
 
-    body.sidebar-xs .sidebar.sidebar-main {
-        width: 3.5rem;
-    }
+body.sidebar-xs .sidebar.sidebar-main {
+    width: 3.5rem;
+}
 
-    body.sidebar-xs .sidebar.sidebar-main .sidebar-content {
-        width: 3.5rem;
-    }
+body.sidebar-xs .sidebar.sidebar-main .sidebar-content {
+    width: 3.5rem;
+}
 
-    body.sidebar-xs .page-content {
-        margin-left: 3.5rem;
-    }
+body.sidebar-xs .page-content {
+    margin-left: 3.5rem;
 }

@@ -26,7 +26,13 @@ class VendorController extends Controller
 
         Vendor::create($data);
 
-        return back()->with('flash_success', 'Vendor created successfully.');
+        session()->flash('flash_success', 'Vendor Created Successfully!');
+
+        if ($request->ajax()) {
+            return Qs::json('Vendor Created Successfully!');
+        }
+
+        return back();
     }
 
     public function update(Request $request, Vendor $vendor)
@@ -41,7 +47,13 @@ class VendorController extends Controller
 
         $vendor->update($data);
 
-        return back()->with('flash_success', 'Vendor updated successfully.');
+        session()->flash('flash_success', 'Vendor Updated Successfully!');
+
+        if ($request->ajax()) {
+            return Qs::json('Vendor Updated Successfully!');
+        }
+
+        return back();
     }
 
     public function destroy(Vendor $vendor)

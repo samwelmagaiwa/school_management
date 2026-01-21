@@ -154,4 +154,93 @@ class Mk extends Qs
         return true;
     }
 
+    /**
+     * Get points associated with a grade
+     */
+    public static function getGradePoints($grade_id)
+    {
+        $grade = Grade::find($grade_id);
+        if (!$grade) return 0;
+        
+        // Use manual point if set, otherwise follow default NECTA (A=1, B=2, C=3, D=4, E=5, F=9)
+        if (!is_null($grade->point)) return $grade->point;
+
+        $name = strtoupper($grade->name);
+        switch ($name) {
+            case 'A': return 1;
+            case 'B': return 2;
+            case 'C': return 3;
+            case 'D': return 4;
+            case 'E': return 5;
+            case 'S': return 6;
+            case 'F': return 9;
+            default: return 0;
+        }
+    }
+
+    /**
+     * Calculate Points and Division for a student's exam record
+     */
+    public static function calculateDivision($exr_id)
+    {
+        $exr = ExamRecord::find($exr_id);
+        if (!$exr) return null;
+
+        $marks = Mark::where(['exam_id' => $exr->exam_id, 'student_id' => $exr->student_id, 'year' => $exr->year])
+                     ->where('is_absent', false)
+                     ->get();
+
+        $class_type = Qs::findClassType($exr->my_class_id);
+        $points = 0;
+        $division = '-';
+
+        if ($class_type->id == 5) { // Junior Secondary (O-Level)
+            // NECTA O-Level: Sum of points for best 7 subjects
+            $mark_points = $marks->map(function($m) {
+                return self::getGradePoints($m->grade_id);
+            })->filter(fn($p) => $p > 0)->sort()->values();
+
+            $best_7 = $mark_points->take(7);
+            $points = $best_7->sum();
+            
+            if ($best_7->count() >= 7) {
+                if ($points >= 7 && $points <= 17) $division = 'I';
+                elseif ($points >= 18 && $points <= 24) $division = 'II';
+                elseif ($points >= 25 && $points <= 31) $division = 'III';
+                elseif ($points >= 32 && $points <= 34) $division = 'IV';
+                else $division = '0';
+            }
+        } 
+        elseif ($class_type->id == 6) { // Senior Secondary (A-Level)
+            // NECTA A-Level: Sum of points for best 3 principal subjects
+            // Assuming for now all are principal or we take best 3
+            $mark_points = $marks->map(function($m) {
+                return self::getGradePoints($m->grade_id);
+            })->filter(fn($p) => $p > 0 && $p < 9)->sort()->values();
+
+            $best_3 = $mark_points->take(3);
+            $points = $best_3->sum();
+
+            if ($best_3->count() >= 3) {
+                if ($points >= 3 && $points <= 9) $division = 'I';
+                elseif ($points >= 10 && $points <= 12) $division = 'II';
+                elseif ($points >= 13 && $points <= 17) $division = 'III';
+                elseif ($points >= 18 && $points <= 19) $division = 'IV';
+                else $division = '0';
+            }
+        }
+        elseif ($class_type->id == 4) { // Primary
+            // Primary is usually average based, but we can set division based on average if needed
+            $avg = $exr->ave;
+            if ($avg >= 81) $division = 'A';
+            elseif ($avg >= 61) $division = 'B';
+            elseif ($avg >= 41) $division = 'C';
+            elseif ($avg >= 21) $division = 'D';
+            else $division = 'E';
+            $points = $exr->total; // For Primary, points could be total marks
+        }
+
+        $exr->update(['points' => $points, 'division' => $division]);
+        return ['points' => $points, 'division' => $division];
+    }
 }

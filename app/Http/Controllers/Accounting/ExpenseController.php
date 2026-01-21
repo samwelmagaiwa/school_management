@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Accounting\Expense;
 use App\Models\Accounting\Vendor;
 use Illuminate\Http\Request;
+use App\Helpers\Qs;
 
 class ExpenseController extends Controller
 {
@@ -38,6 +39,23 @@ class ExpenseController extends Controller
         ]);
 
         $data['expense_date'] = \Carbon\Carbon::parse($data['expense_date']);
+
+        // Prevent Duplicate Saving (Same Title, Amount, Date and Vendor)
+        $exists = Expense::where([
+            ['title', '=', $data['title']],
+            ['amount', '=', $data['amount']],
+            ['expense_date', '=', $data['expense_date']->format('Y-m-d')],
+            ['vendor_id', '=', $data['vendor_id']],
+            ['category', '=', $data['category']],
+        ])->where('created_at', '>', now()->subDay())->exists();
+
+        if ($exists) {
+            if ($request->ajax()) {
+                return Qs::json('A similar expense was already recorded in the last 24 hours.', false);
+            }
+            return back()->with('flash_danger', 'A similar expense was already recorded in the last 24 hours.');
+        }
+
         $data['recorded_by'] = auth()->id();
         
         // If status is approved/paid (default logic), maybe set approved_by?
@@ -48,7 +66,13 @@ class ExpenseController extends Controller
 
         Expense::create($data);
 
-        return back()->with('flash_success', 'Expense recorded successfully.');
+        session()->flash('flash_success', 'Expense Recorded Successfully!');
+
+        if ($request->ajax()) {
+            return Qs::json('Expense Recorded Successfully!');
+        }
+
+        return back();
     }
 
     public function update(Request $request, Expense $expense)
@@ -72,7 +96,13 @@ class ExpenseController extends Controller
 
         $expense->update($data);
 
-        return back()->with('flash_success', 'Expense updated successfully.');
+        session()->flash('flash_success', 'Expense Updated Successfully!');
+
+        if ($request->ajax()) {
+            return Qs::json('Expense Updated Successfully!');
+        }
+
+        return back();
     }
 
     public function destroy(Expense $expense)

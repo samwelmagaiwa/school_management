@@ -86,6 +86,8 @@
                         @endif--}}
                         <th style="color: darkred">Total</th>
                         <th style="color: darkblue">Average</th>
+                        <th style="color: purple">Points</th>
+                        <th style="color: brown">Division</th>
                         <th style="color: darkgreen">Position</th>
                     </tr>
                     </thead>
@@ -109,6 +111,8 @@
 
                             <td style="color: darkred">{{ $exr->where('student_id', $s->user_id)->first()->total ?: '-' }}</td>
                             <td style="color: darkblue">{{ $exr->where('student_id', $s->user_id)->first()->ave ?: '-' }}</td>
+                            <td style="color: purple">{{ $exr->where('student_id', $s->user_id)->first()->points ?: '-' }}</td>
+                            <td style="color: brown">{{ $exr->where('student_id', $s->user_id)->first()->division ?: '-' }}</td>
                             <td style="color: darkgreen">{!! Mk::getSuffix($exr->where('student_id', $s->user_id)->first()->pos) ?: '-' !!}</td>
                         </tr>
                     @endforeach
@@ -117,6 +121,7 @@
                 {{--Print Button--}}
                 <div class="text-center mt-4">
                     <a target="_blank" href="{{  route('marks.print_tabulation', [$exam_id, $my_class_id, $section_id]) }}" class="btn btn-danger btn-lg"><i class="icon-printer mr-2"></i> Print Tabulation Sheet</a>
+                    <a href="{{  route('reports.bulk', [$exam_id, $my_class_id, $section_id]) }}" class="btn btn-success btn-lg ml-2"><i class="icon-file-pdf mr-2"></i> Download All Report Cards (PDF)</a>
                 </div>
             </div>
         </div>

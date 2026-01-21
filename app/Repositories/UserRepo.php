@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\BloodGroup;
 use App\Models\StaffRecord;
+use App\Models\Permission;
 use App\Models\UserType;
 use App\User;
 
@@ -39,6 +40,21 @@ class UserRepo {
     public function findType($id)
     {
         return UserType::find($id);
+    }
+
+    public function findTypeByTitle($title)
+    {
+        return UserType::where('title', $title)->first();
+    }
+
+    public function createType($data)
+    {
+        return UserType::create($data);
+    }
+
+    public function getAllPermissions()
+    {
+        return Permission::orderBy('name')->get();
     }
 
     public function find($id)

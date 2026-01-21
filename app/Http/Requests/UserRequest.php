@@ -50,6 +50,11 @@ class UserRequest extends FormRequest
             'ward' => 'required|string|min:2|max:120',
             'street' => 'required|string|min:2|max:120',
         ];
+
+        if(Qs::userIsSuperAdmin() && $this->method() === 'PUT'){
+            $update['user_type'] = 'sometimes|required';
+        }
+
         return ($this->method() === 'POST') ? $store : $update;
     }
 
@@ -68,20 +73,20 @@ class UserRequest extends FormRequest
 
     protected function getValidatorInstance()
     {
+        $input = $this->all();
         if($this->method() === 'POST'){
-            $input = $this->all();
-
             $input['user_type'] = Qs::decodeHash($input['user_type']);
-
             $this->getInputSource()->replace($input);
-
         }
 
         if($this->method() === 'PUT'){
             $this->user = Qs::decodeHash($this->user);
+            if(isset($input['user_type'])){
+                $input['user_type'] = Qs::decodeHash($input['user_type']);
+                $this->getInputSource()->replace($input);
+            }
         }
 
         return parent::getValidatorInstance();
-
     }
 }

@@ -198,32 +198,38 @@ class MarkController extends Controller
         {
             $all_st_ids[] = $mk->student_id;
 
-                $d['t1'] = $t1 = $mks['t1_'.$mk->id];
-                $d['t2'] = $t2 = $mks['t2_'.$mk->id];
-                $d['tca'] = $tca = $t1 + $t2;
-                $d['exm'] = $exm = $mks['exm_'.$mk->id];
+            // Check if student is marked absent
+            $is_absent = isset($mks['absent_'.$mk->id]) && $mks['absent_'.$mk->id] == '1';
+            
+            if ($is_absent) {
+                // Student is absent - set all marks to NULL
+                $d['t1'] = $d['t2'] = $d['tca'] = $d['exm'] = NULL;
+                $d['is_absent'] = true;
+                $d['exemption_reason'] = $mks['reason_'.$mk->id] ?? 'Absent from exam';
+            } else {
+                // Student attended - process marks normally
+                $d['t1'] = $t1 = $mks['t1_'.$mk->id] ?? NULL;
+                $d['t2'] = $t2 = $mks['t2_'.$mk->id] ?? NULL;
+                $d['tca'] = $tca = ($t1 ?? 0) + ($t2 ?? 0);
+                $d['exm'] = $exm = $mks['exm_'.$mk->id] ?? NULL;
+                $d['is_absent'] = false;
+                $d['exemption_reason'] = NULL;
 
 
-            /** SubTotal Grade, Remark, Cum, CumAvg**/
+                /** SubTotal Grade, Remark, Cum, CumAvg**/
+                $d['tex'.$exam->term] = $total = $tca + ($exm ?? 0);
 
-            $d['tex'.$exam->term] = $total = $tca + $exm;
+                if($total > 100){
+                    $d['tex'.$exam->term] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
+                }
 
-            if($total > 100){
-                $d['tex'.$exam->term] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
-            }
-
-         /*   if($exam->term < 3){
                 $grade = $this->mark->getGrade($total, $class_type->id);
+                $d['grade_id'] = $grade ? $grade->id : NULL;
             }
-
-            if($exam->term == 3){
-                $d['cum'] = $this->mark->getSubCumTotal($total, $st_id, $subject_id, $class_id, $this->year);
-                $d['cum_ave'] = $cav = $this->mark->getSubCumAvg($total, $st_id, $subject_id, $class_id, $this->year);
-                $grade = $this->mark->getGrade(round($cav), $class_type->id);
-            }*/
-            $grade = $this->mark->getGrade($total, $class_type->id);
-            $d['grade_id'] = $grade ? $grade->id : NULL;
-
+            
+            // Audit trail - record who last modified
+            $d['modified_by'] = Auth::id();
+       
             $this->exam->updateMark($mk->id, $d);
         }
 
@@ -250,8 +256,15 @@ class MarkController extends Controller
             $d3['ave'] = $this->mark->getExamAvgTerm($exam, $st_id, $class_id, $section_id, $this->year);
             $d3['class_ave'] = $this->mark->getClassAvg($exam, $class_id, $this->year);
             $d3['pos'] = $this->mark->getPos($st_id, $exam, $class_id, $section_id, $this->year);
+            $d3['modified_by'] = Auth::id();
 
             $this->exam->updateRecord($p, $d3);
+
+            // NECTA Compliance: Calculate Points and Division
+            $exr = $this->exam->getRecord($p)->first();
+            if ($exr) {
+                Mk::calculateDivision($exr->id);
+            }
         }
         /*Exam Record End*/
 

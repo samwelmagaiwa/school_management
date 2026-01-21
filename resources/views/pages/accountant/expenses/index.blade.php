@@ -428,5 +428,10 @@
             form.submit();
         }
     }
+
+    // Redirect to index on successful AJAX store/update to show updated list and flash message
+    $('form.ajax-store, form.ajax-update').on('ajax:success', function(e, data){
+        window.location.href = "{{ route('accounting.expenses.index') }}";
+    });
 </script>
 @endsection

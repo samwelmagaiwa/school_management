@@ -93,9 +93,22 @@ class Qs
 
     public static function hash($id)
     {
-        $date = date('dMY').'samTECH';
-        $hash = new Hashids($date, 14);
-        return $hash->encode($id);
+        $salt = 'samTECH_SECRET_STABLE';
+        $hash = new Hashids($salt, 14);
+        
+        // Strict validation: only encode numeric values
+        if (!is_numeric($id) && !is_int($id)) {
+            \Log::error('Attempting to hash non-numeric value', [
+                'value' => is_object($id) ? get_class($id) : $id,
+                'type' => gettype($id),
+                'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)
+            ]);
+            // Return a distinctive error that will fail validation
+            return '';
+        }
+        
+        $val = (int)$id;
+        return $hash->encode($val);
     }
 
     public static function getUserRecord($remove = [])
@@ -122,9 +135,35 @@ class Qs
 
     public static function decodeHash($str, $toString = true)
     {
-        $date = date('dMY').'samTECH';
-        $hash = new Hashids($date, 14);
+        // Check if we received a JSON object instead of a hash
+        if (is_string($str) && (str_starts_with($str, '{') || str_starts_with($str, '['))) {
+            \Log::error('DecodeHash received JSON object instead of hash string', [
+                'input' => substr($str, 0, 200),
+                'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)
+            ]);
+            return '';
+        }
+
+        $salt = 'samTECH_SECRET_STABLE';
+        $hash = new Hashids($salt, 14);
         $decoded = $hash->decode($str);
+
+        // Fallback to old date-based salt for links generated today if needed
+        if(count($decoded) < 1) {
+            $date = date('dMY').'samTECH';
+            $hash2 = new Hashids($date, 14);
+            $decoded = $hash2->decode($str);
+        }
+
+        // If still empty, log the attempt for debugging
+        if(count($decoded) < 1) {
+             \Log::error('Hash Decoding Failed for string', [
+                 'string' => substr($str, 0, 100),
+                 'salt' => $salt,
+                 'fallback' => date('dMY').'samTECH'
+             ]);
+        }
+
         return $toString ? implode(',', $decoded) : $decoded;
     }
 

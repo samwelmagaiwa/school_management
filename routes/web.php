@@ -51,6 +51,9 @@ Route::group(['middleware' => 'auth'], function () {
         /*************** Users *****************/
         Route::group(['prefix' => 'users'], function(){
             Route::get('reset_pass/{id}', 'UserController@reset_pass')->name('users.reset_pass');
+            Route::post('store_role', 'UserController@storeRole')->name('users.store_role');
+            Route::get('permissions/{id}', 'UserController@managePermissions')->name('users.permissions');
+            Route::put('permissions/{id}', 'UserController@updateUserPermissions')->name('users.permissions.update');
         });
 
         /*************** TimeTables *****************/
@@ -201,6 +204,7 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::get('tabulation/{exam?}/{class?}/{sec_id?}', 'MarkController@tabulation')->name('marks.tabulation');
                 Route::post('tabulation', 'MarkController@tabulation_select')->name('marks.tabulation_select');
                 Route::get('tabulation/print/{exam}/{class}/{sec_id}', 'MarkController@print_tabulation')->name('marks.print_tabulation');
+                Route::get('bulk_report/{exam_id}/{my_class_id}/{section_id}', 'ReportCardController@bulk')->name('reports.bulk');
             });
 
             // FOR teamSAT
@@ -213,6 +217,10 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::post('selector', 'MarkController@selector')->name('marks.selector');
                 Route::get('bulk/{class?}/{section?}', 'MarkController@bulk')->name('marks.bulk');
                 Route::post('bulk', 'MarkController@bulk_select')->name('marks.bulk_select');
+                
+                // Excel Import/Export
+                Route::get('excel/export/{exam}/{class}/{section}/{subject}', 'MarkExcelController@export')->name('marks.excel_export');
+                Route::post('excel/import/{exam}/{class}/{section}/{subject}', 'MarkExcelController@import')->name('marks.excel_import');
             });
 
             Route::get('select_year/{id}', 'MarkController@year_selector')->name('marks.year_selector');
@@ -222,7 +230,14 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
-        Route::resource('students', 'StudentRecordController');
+        // Students - explicit routes to avoid model binding with hashed IDs
+        Route::get('students/create', 'StudentRecordController@create')->name('students.create');
+        Route::post('students', 'StudentRecordController@store')->name('students.store');
+        Route::get('students/{sr_id}', 'StudentRecordController@show')->name('students.show');
+        Route::get('students/{sr_id}/edit', 'StudentRecordController@edit')->name('students.edit');
+        Route::put('students/{sr_id}', 'StudentRecordController@update')->name('students.update');
+        Route::delete('students/{sr_id}', 'StudentRecordController@destroy')->name('students.destroy');
+        
         Route::resource('users', 'UserController');
         Route::post('classes/batch', 'MyClassController@batch_store')->name('classes.batch_store');
         Route::resource('classes', 'MyClassController');
@@ -230,6 +245,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('subjects', 'SubjectController');
         Route::resource('grades', 'GradeController');
         Route::resource('exams', 'ExamController');
+        
+        // Exam Statistics Dashboard
+        Route::group(['prefix' => 'exam_stats', 'as' => 'exam_stats.'], function() {
+            Route::get('/', 'ExamStatsController@index')->name('index');
+            Route::get('{exam_id}', 'ExamStatsController@show')->name('show');
+            Route::get('{exam_id}/class/{class_id}', 'ExamStatsController@classStats')->name('class');
+            Route::get('{exam_id}/class/{class_id}/section/{section_id}', 'ExamStatsController@classStats')->name('class.section');
+            Route::get('{exam_id}/export-pdf', 'ExamStatsController@exportPDF')->name('export_pdf');
+        });
+        
         Route::resource('dorms', 'DormController');
         Route::group(['prefix' => 'dorms/{dorm}', 'as' => 'dorms.', 'middleware' => 'custom.hostel'], function () {
             Route::post('rooms', 'DormRoomController@store')->name('rooms.store');

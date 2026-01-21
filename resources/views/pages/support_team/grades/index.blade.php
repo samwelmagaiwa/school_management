@@ -23,6 +23,7 @@
                                 <th>Name</th>
                                 <th>Grade Type</th>
                                 <th>Range</th>
+                                <th>Point</th>
                                 <th>Remark</th>
                                 <th>Action</th>
                             </tr>
@@ -34,6 +35,7 @@
                                     <td>{{ $gr->name }}</td>
                                     <td>{{ $gr->class_type_id ? $class_types->where('id', $gr->class_type_id)->first()->name : ''}}</td>
                                     <td>{{ $gr->mark_from.' - '.$gr->mark_to }}</td>
+                                    <td>{{ $gr->point }}</td>
                                     <td>{{ $gr->remark }}</td>
                                     <td class="text-center">
                                         <div class="list-icons">
@@ -107,6 +109,13 @@
                                     <label class="col-lg-3 col-form-label font-weight-semibold">Mark To <span class="text-danger">*</span></label>
                                     <div class="col-lg-3">
                                         <input min="0" max="100" name="mark_to" value="{{ old('mark_to') }}" required type="number" class="form-control" placeholder="0">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-3 col-form-label font-weight-semibold">Point</label>
+                                    <div class="col-lg-3">
+                                        <input min="0" max="10" name="point" value="{{ old('point') }}" type="number" class="form-control" placeholder="0">
                                     </div>
                                 </div>
 

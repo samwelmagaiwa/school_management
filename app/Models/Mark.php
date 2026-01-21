@@ -7,7 +7,7 @@ use Eloquent;
 
 class Mark extends Eloquent
 {
-    protected $fillable = ['t1', 't2', 't3', 't4', 'tca', 'exm', 'tex1', 'tex2', 'tex3', 'sub_pos', 'cum', 'cum_ave', 'grade_id', 'year', 'exam_id', 'subject_id', 'my_class_id', 'student_id', 'section_id'];
+    protected $fillable = ['t1', 't2', 't3', 't4', 'tca', 'exm', 'tex1', 'tex2', 'tex3', 'sub_pos', 'cum', 'cum_ave', 'grade_id', 'year', 'exam_id', 'subject_id', 'my_class_id', 'student_id', 'section_id', 'is_absent', 'exemption_reason', 'entered_by', 'modified_by'];
 
     public function exam()
     {
@@ -37,5 +37,15 @@ class Mark extends Eloquent
     public function grade()
     {
         return $this->belongsTo(Grade::class);
+    }
+
+    public function enteredBy()
+    {
+        return $this->belongsTo(User::class, 'entered_by');
+    }
+
+    public function modifiedBy()
+    {
+        return $this->belongsTo(User::class, 'modified_by');
     }
 }

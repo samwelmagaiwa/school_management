@@ -47,6 +47,13 @@
                         </div>
 
                         <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">Point</label>
+                            <div class="col-lg-3">
+                                <input name="point" min="0" max="10" value="{{ $gr->point }}" type="number" class="form-control" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label for="remark" class="col-lg-3 col-form-label font-weight-semibold">Remark</label>
                             <div class="col-lg-9">
                                 <select  class="form-control select" name="remark" id="remark">
