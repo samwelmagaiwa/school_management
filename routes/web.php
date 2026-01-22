@@ -38,13 +38,15 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => 'payroll', 'as' => 'hr.payroll.'], function(){
             Route::get('/', 'PayrollController@index')->name('index');
             Route::get('/export', 'PayrollController@export')->name('export');
+            Route::post('/', 'PayrollController@store')->name('store');
+            Route::get('/{id}', 'PayrollController@show')->name('show');
+            Route::put('/{id}', 'PayrollController@update')->name('update');
+            Route::delete('/{id}', 'PayrollController@destroy')->name('destroy');
         });
 
         Route::group(['prefix' => 'reports', 'as' => 'hr.reports.'], function(){
             Route::get('/summary', 'HrReportController@summary')->name('summary');
         });
-
-        Route::resource('salary/payment', 'PayrollController')->only(['index', 'store', 'show', 'update', 'destroy'])->names('hr.payroll');
         
         // Departments & Designations
         Route::get('departments', 'DepartmentController@index')->name('hr.departments.index');
