@@ -15,13 +15,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vehicle_id')->constrained('transport_vehicles')->onDelete('cascade');
             $table->date('date');
-            $table->integer('odometer_reading');
-            $table->decimal('fuel_quantity_liters', 8, 2);
-            $table->decimal('cost_per_liter', 8, 2);
-            $table->decimal('total_cost', 10, 2);
+            
+            $table->decimal('liters', 8, 2);
+            $table->decimal('cost_per_liter', 10, 2);
+            $table->decimal('total_cost', 12, 2);
+            
+            $table->decimal('odometer_reading', 10, 1);
+            $table->boolean('is_full_tank')->default(false);
+            
             $table->string('station_name')->nullable();
             $table->string('receipt_number')->nullable();
-            $table->foreignId('filled_by')->nullable()->constrained('users')->onDelete('set null');
+            
+            $table->unsignedInteger('filled_by')->nullable();
+            $table->foreign('filled_by')->references('id')->on('users')->onDelete('set null');
+
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

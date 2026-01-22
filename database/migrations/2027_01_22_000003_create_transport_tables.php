@@ -33,29 +33,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        // 2. Fuel Logs
-        Schema::create('transport_fuel_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vehicle_id')->constrained('transport_vehicles')->onDelete('cascade');
-            $table->date('date');
-            
-            $table->decimal('liters', 8, 2);
-            $table->decimal('cost_per_liter', 10, 2);
-            $table->decimal('total_cost', 12, 2);
-            
-            $table->decimal('odometer_reading', 10, 1);
-            $table->boolean('is_full_tank')->default(false);
-            
-            $table->unsignedInteger('issued_by')->nullable();
-            $table->foreign('issued_by')->references('id')->on('users')->onDelete('set null');
-
-            $table->string('invoice_number')->nullable();
-            $table->text('notes')->nullable();
-            
-            $table->timestamps();
-        });
-
-        // 3. Trips
+        // 2. Trips
         Schema::create('transport_trips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_id')->constrained('transport_vehicles')->onDelete('cascade');
@@ -76,35 +54,11 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
         });
-        
-        // 4. Maintenance Logs
-        Schema::create('maintenance_logs', function (Blueprint $table) {
-            $table->id();
-            $table->morphs('maintainable');
-            
-            $table->string('type');
-            $table->string('title');
-            $table->text('description')->nullable();
-            
-            $table->decimal('cost', 12, 2)->default(0);
-            $table->string('service_provider')->nullable();
-            $table->date('service_date');
-            $table->date('next_due_date')->nullable();
-            
-            $table->string('invoice_file')->nullable();
-            
-            $table->unsignedInteger('reported_by')->nullable();
-            $table->foreign('reported_by')->references('id')->on('users')->onDelete('set null');
-            
-            $table->timestamps();
-        });
     }
 
     public function down()
     {
-        Schema::dropIfExists('maintenance_logs');
         Schema::dropIfExists('transport_trips');
-        Schema::dropIfExists('transport_fuel_logs');
         Schema::dropIfExists('transport_vehicles');
     }
 };
