@@ -2,6 +2,13 @@
 
 @section('content')
 <style>
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+
 .login-container {
     display: flex;
     min-height: 100vh;
@@ -11,12 +18,25 @@
 /* Carousel Section with Background Image */
 .carousel-section {
     flex: 1;
+    min-height: 100vh;
     position: relative;
     overflow: hidden;
+}
+
+.carousel-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     background-image: url('{{ asset('storage/uploads/landing.jpg') }}');
-    background-size: 100% 100%;
-    background-position: center center;
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
+    z-index: 0;
 }
 
 /* Reduced overlay for better image visibility */
@@ -24,6 +44,8 @@
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.45) 0%, rgba(118, 75, 162, 0.45) 100%);
