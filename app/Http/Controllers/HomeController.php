@@ -19,7 +19,7 @@ class HomeController extends Controller
     {
         $user_type = Auth::user()->user_type;
 
-        if(Qs::userIsTeamSA() && $user_type == 'hr'){
+        if($user_type == 'hr'){
             return redirect()->route('hr.reports.summary');
         }
         if($user_type == 'accountant'){
@@ -76,7 +76,7 @@ class HomeController extends Controller
     {
         $user_type = Auth::user()->user_type;
 
-        if(Qs::userIsTeamSA() && $user_type == 'hr'){
+        if($user_type == 'hr'){
              return redirect()->route('hr.reports.summary');
         }
         if($user_type == 'accountant'){
