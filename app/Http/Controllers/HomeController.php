@@ -17,21 +17,42 @@ class HomeController extends Controller
 
     public function index()
     {
-        if(Qs::userIsTeamSA() && Auth::user()->user_type == 'hr'){
+        $user_type = Auth::user()->user_type;
+
+        if(Qs::userIsTeamSA() && $user_type == 'hr'){
             return redirect()->route('hr.reports.summary');
         }
-        if(Auth::user()->user_type == 'accountant'){
+        if($user_type == 'accountant'){
             return redirect()->route('accounting.reports.summary');
         }
-        if(Auth::user()->user_type == 'teacher'){
+        if($user_type == 'teacher'){
             return redirect()->route('teacher.dashboard');
         }
-        if(Auth::user()->user_type == 'student'){
+        if($user_type == 'student'){
             return redirect()->route('student.dashboard');
         }
-        if(Auth::user()->user_type == 'parent'){
+        if($user_type == 'parent'){
             return redirect()->route('parent.dashboard');
         }
+        if($user_type == 'librarian'){
+            return redirect()->route('librarian.dashboard');
+        }
+        if($user_type == 'hostel_officer'){
+            return redirect()->route('hostel.dashboard');
+        }
+        if($user_type == 'storekeeper'){
+            return redirect()->route('inventory.dashboard');
+        }
+        if($user_type == 'transport_officer'){
+            return redirect()->route('transport.dashboard');
+        }
+        if($user_type == 'auditor'){
+            return redirect()->route('audit.dashboard');
+        }
+        if($user_type == 'academic'){
+            return redirect()->route('academic.dashboard');
+        }
+
         return redirect()->route('dashboard');
     }
 
@@ -53,20 +74,40 @@ class HomeController extends Controller
 
     public function dashboard()
     {
-        if(Qs::userIsTeamSA() && Auth::user()->user_type == 'hr'){
+        $user_type = Auth::user()->user_type;
+
+        if(Qs::userIsTeamSA() && $user_type == 'hr'){
              return redirect()->route('hr.reports.summary');
         }
-        if(Auth::user()->user_type == 'accountant'){
+        if($user_type == 'accountant'){
             return redirect()->route('accounting.reports.summary');
         }
-        if(Auth::user()->user_type == 'teacher'){
+        if($user_type == 'teacher'){
             return redirect()->route('teacher.dashboard');
         }
-        if(Auth::user()->user_type == 'student'){
+        if($user_type == 'student'){
             return redirect()->route('student.dashboard');
         }
-        if(Auth::user()->user_type == 'parent'){
+        if($user_type == 'parent'){
             return redirect()->route('parent.dashboard');
+        }
+        if($user_type == 'librarian'){
+            return redirect()->route('librarian.dashboard');
+        }
+        if($user_type == 'hostel_officer'){
+            return redirect()->route('hostel.dashboard');
+        }
+        if($user_type == 'storekeeper'){
+            return redirect()->route('inventory.dashboard');
+        }
+        if($user_type == 'transport_officer'){
+            return redirect()->route('transport.dashboard');
+        }
+        if($user_type == 'auditor'){
+            return redirect()->route('audit.dashboard');
+        }
+        if($user_type == 'academic'){
+            return redirect()->route('academic.dashboard');
         }
 
         $d=[];

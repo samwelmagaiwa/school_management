@@ -65,6 +65,36 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/dashboard', 'DashboardController@index')->name('teacher.dashboard');
     });
 
+    /*************** Librarian Dashboard *****************/
+    Route::group(['namespace' => 'Librarian', 'prefix' => 'librarian'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('librarian.dashboard');
+    });
+
+    /*************** Hostel Dashboard *****************/
+    Route::group(['namespace' => 'Hostel', 'prefix' => 'hostel'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('hostel.dashboard');
+    });
+
+    /*************** Inventory Dashboard *****************/
+    Route::group(['namespace' => 'Inventory', 'prefix' => 'inventory'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('inventory.dashboard');
+    });
+
+    /*************** Transport Dashboard *****************/
+    Route::group(['namespace' => 'Transport', 'prefix' => 'transport'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('transport.dashboard');
+    });
+
+    /*************** Audit Dashboard *****************/
+    Route::group(['namespace' => 'Audit', 'prefix' => 'audit'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('audit.dashboard');
+    });
+
+    /*************** Academic Dashboard *****************/
+    Route::group(['namespace' => 'Academic', 'prefix' => 'academic'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('academic.dashboard');
+    });
+
     /*************** Support Team *****************/
     // Student self-service routes
     Route::group(['namespace' => 'Student'], function () {
