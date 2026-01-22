@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('item_id')->constrained('inventory_items')->onDelete('cascade');
             $table->foreignId('warehouse_id')->constrained('inventory_warehouses')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
             $table->string('type'); // receive, issue, return, adjustment, transfer
             $table->integer('quantity'); // Positive for add, Negative for deduct
             $table->string('reference')->nullable(); // e.g., PO-101, REQ-202
