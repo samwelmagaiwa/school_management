@@ -180,8 +180,10 @@ class Qs
     public static function userIsTeamSA()
     {
         return in_array(Auth::user()->user_type, self::getTeamSA()) ||
+            Auth::user()->user_type == 'hr' ||
             Auth::user()->hasPermission('dept.manage') ||
             Auth::user()->hasPermission('class.manage') ||
+            Auth::user()->hasPermission('staff.manage') ||
             Auth::user()->hasPermission('user.view');
     }
 

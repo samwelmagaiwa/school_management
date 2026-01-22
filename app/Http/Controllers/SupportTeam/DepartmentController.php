@@ -16,6 +16,7 @@ class DepartmentController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('teamSA'); // admins and super_admins only
+        $this->middleware('can:dept.manage');
     }
 
     public function index()

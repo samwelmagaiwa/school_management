@@ -52,54 +52,91 @@
                     <ul class="nav nav-sidebar" data-nav-type="accordion">
 
                 <!-- Main -->
-                <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
-                        <i class="icon-home4"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
+                @if(Auth::user()->hasPermission('hr.reports.view'))
+                    <li class="nav-item">
+                        <a href="{{ route('hr.reports.summary') }}" class="nav-link {{ (Route::is('hr.reports.summary')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->user_type == 'accountant')
+                    <li class="nav-item">
+                        <a href="{{ route('accounting.reports.summary') }}" class="nav-link {{ (Route::is('accounting.reports.summary')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->user_type == 'teacher')
+                    <li class="nav-item">
+                        <a href="{{ route('teacher.dashboard') }}" class="nav-link {{ (Route::is('teacher.dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->user_type == 'student')
+                    <li class="nav-item">
+                        <a href="{{ route('student.dashboard') }}" class="nav-link {{ (Route::is('student.dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @elseif(Auth::user()->user_type == 'parent')
+                    <li class="nav-item">
+                        <a href="{{ route('parent.dashboard') }}" class="nav-link {{ (Route::is('parent.dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ (Route::is('dashboard')) ? 'active' : '' }}">
+                            <i class="icon-home4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @endif
 
                 {{-- Administrative & Setup --}}
-                @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('user.view') || Auth::user()->hasPermission('dept.manage') || Auth::user()->hasPermission('dorm.manage') || Auth::user()->hasPermission('class.manage') || Auth::user()->hasPermission('section.manage') || Auth::user()->hasPermission('subject.manage'))
+                @if(Auth::user()->hasPermission('user.view') || Auth::user()->hasPermission('dept.manage') || Auth::user()->hasPermission('dorm.manage') || Auth::user()->hasPermission('class.manage') || Auth::user()->hasPermission('section.manage') || Auth::user()->hasPermission('subject.manage'))
                     <li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-normal">Administrative & Setup</div> <i class="icon-menu" title="Administrative & Setup"></i></li>
                     
                     {{--Manage Users--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('user.view'))
+                    @if(Auth::user()->hasPermission('user.view'))
                     <li class="nav-item">
                         <a href="{{ route('users.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['users.index', 'users.show', 'users.edit']) ? 'active' : '' }}"><i class="icon-users4"></i> <span> Users</span></a>
                     </li>
                     @endif
 
                     {{--Departments--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('dept.manage'))
+                    @if(Auth::user()->hasPermission('dept.manage'))
                     <li class="nav-item">
                         <a href="{{ route('departments.index') }}" class="nav-link {{ Route::is('departments.index') ? 'active' : '' }}"><i class="icon-tree7"></i> <span>Departments</span></a>
                     </li>
                     @endif
 
                     {{--Manage Dorms--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('dorm.manage'))
+                    @if(Auth::user()->hasPermission('dorm.manage'))
                     <li class="nav-item">
                         <a href="{{ route('dorms.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['dorms.index','dorms.edit']) ? 'active' : '' }}"><i class="icon-home9"></i> <span> Dormitories</span></a>
                     </li>
                     @endif
 
                     {{--Manage Classes--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('class.manage'))
+                    @if(Auth::user()->hasPermission('class.manage'))
                     <li class="nav-item">
                         <a href="{{ route('classes.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['classes.index','classes.edit']) ? 'active' : '' }}"><i class="icon-windows2"></i> <span> Classes</span></a>
                     </li>
                     @endif
 
                     {{--Manage Sections--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('section.manage'))
+                    @if(Auth::user()->hasPermission('section.manage'))
                     <li class="nav-item">
                         <a href="{{ route('sections.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['sections.index','sections.edit',]) ? 'active' : '' }}"><i class="icon-fence"></i> <span>Sections</span></a>
                     </li>
                     @endif
 
                     {{--Manage Subjects--}}
-                    @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('subject.manage'))
+                    @if(Auth::user()->hasPermission('subject.manage'))
                     <li class="nav-item">
                         <a href="{{ route('subjects.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['subjects.index','subjects.edit',]) ? 'active' : '' }}"><i class="icon-pin"></i> <span>Subjects</span></a>
                     </li>
@@ -113,7 +150,7 @@
 
                         <ul class="nav nav-group-sub" data-submenu-title="Manage Students">
                             {{--Admit Student--}}
-                            @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('student.admit'))
+                            @if(Auth::user()->hasPermission('student.admit'))
                                 <li class="nav-item">
                                     <a href="{{ route('students.create') }}"
                                        class="nav-link {{ (Route::is('students.create')) ? 'active' : '' }}">Admit Student</a>
@@ -137,7 +174,7 @@
                             @endif
 
                             {{--Student Promotion--}}
-                            @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('student.promote'))
+                            @if(Auth::user()->hasPermission('student.promote'))
                             <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'nav-item-expanded' : '' }}">
                                 <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage' ]) ? 'active' : '' }}">Student Promotion</a>
                             <ul class="nav nav-group-sub">
@@ -148,7 +185,7 @@
                             @endif
 
                             {{--Student Graduated--}}
-                            @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('student.graduate'))
+                            @if(Auth::user()->hasPermission('student.graduate'))
                             <li class="nav-item"><a href="{{ route('students.graduated') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['students.graduated' ]) ? 'active' : '' }}">Students Graduated</a></li>
                             @endif
 
@@ -191,7 +228,7 @@
                     <a href="#" class="nav-link"><i class="icon-books"></i> <span> Exams</span></a>
 
                     <ul class="nav nav-group-sub" data-submenu-title="Manage Exams">
-                        @if(Qs::userIsTeamSA() || Auth::user()->hasPermission('exam.manage'))
+                        @if(Auth::user()->hasPermission('exam.manage'))
 
                         {{--Exam list--}}
                             <li class="nav-item">
@@ -262,6 +299,24 @@
                     </li>
                 @endif
 
+
+
+
+                {{--Staff Self Service--}}
+                @if(Auth::user()->user_type != 'student' && Auth::user()->user_type != 'parent' && Auth::user()->user_type != 'super_admin')
+                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['hr.attendance.my', 'hr.leaves.create', 'hr.leaves.store']) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                        <a href="#" class="nav-link"><i class="icon-user-tie"></i> <span> My HR Portal</span></a>
+
+                        <ul class="nav nav-group-sub" data-submenu-title="My HR Portal">
+                             <li class="nav-item">
+                                <a href="{{ route('hr.attendance.my') }}" class="nav-link {{ Route::is('hr.attendance.my') ? 'active' : '' }}">My Attendance</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('hr.leaves.create') }}" class="nav-link {{ Route::is('hr.leaves.create') ? 'active' : '' }}">Apply for Leave</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
 
                 {{--End Exam--}}
 

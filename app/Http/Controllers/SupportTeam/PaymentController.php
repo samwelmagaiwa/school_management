@@ -30,6 +30,8 @@ class PaymentController extends Controller
         $this->student = $student;
 
         $this->middleware('teamAccount');
+        $this->middleware('can:payment.view')->only(['index', 'show', 'invoice', 'receipts']);
+        $this->middleware('can:payment.manage')->except(['index', 'show', 'invoice', 'receipts']);
     }
 
     public function index()

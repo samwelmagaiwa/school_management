@@ -14,7 +14,8 @@ class InventoryController extends Controller
 {
     public function __construct()
     {
-       // $this->middleware('auth'); // Handled by route group
+        $this->middleware('auth');
+        $this->middleware('can:inventory.manage');
     }
 
     public function index()

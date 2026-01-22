@@ -44,6 +44,13 @@ class PermissionsTableSeeder extends Seeder
             ['name' => 'payment.view', 'title' => 'View Payments', 'description' => 'Can view payment records'],
             ['name' => 'payment.record', 'title' => 'Record Payment', 'description' => 'Can record new payments'],
             ['name' => 'settings.manage', 'title' => 'Manage Settings', 'description' => 'Can manage system settings'],
+
+            // Human Resources
+            ['name' => 'staff.manage', 'title' => 'Manage Staff', 'description' => 'Can manage staff records'],
+            ['name' => 'leave.manage', 'title' => 'Manage Leaves', 'description' => 'Can approved/reject leave requests'],
+            ['name' => 'attendance.manage', 'title' => 'Mark Staff Attendance', 'description' => 'Can mark and edit staff attendance'],
+            ['name' => 'payroll.manage', 'title' => 'Manage Payroll', 'description' => 'Can process payroll and salaries'],
+            ['name' => 'hr.reports.view', 'title' => 'View HR Reports', 'description' => 'Can view HR summary reports'],
         ];
 
         foreach ($permissions as $p) {
@@ -75,6 +82,18 @@ class PermissionsTableSeeder extends Seeder
         if ($accountant) {
             $accountant_perms = $all_perms->whereIn('name', ['payment.view', 'payment.record']);
             $accountant->permissions()->sync($accountant_perms->pluck('id'));
+        }
+
+        $parent = UserType::where('title', 'parent')->first();
+        if ($parent) {
+            $parent_perms = $all_perms->whereIn('name', ['payment.view', 'student.view', 'exam.view_stats']);
+            $parent->permissions()->sync($parent_perms->pluck('id'));
+        }
+
+        $student = UserType::where('title', 'student')->first();
+        if ($student) {
+            $student_perms = $all_perms->whereIn('name', ['exam.view_stats', 'payment.view']);
+            $student->permissions()->sync($student_perms->pluck('id'));
         }
     }
 }

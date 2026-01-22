@@ -11,6 +11,12 @@ use Illuminate\Http\Request;
 
 class TransportController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('can:transport.manage');
+    }
+
     public function index()
     {
         $d['vehicles'] = Vehicle::with('driver')->get();

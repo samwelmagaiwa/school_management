@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Qs;
 use App\Repositories\UserRepo;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -16,6 +17,21 @@ class HomeController extends Controller
 
     public function index()
     {
+        if(Qs::userIsTeamSA() && Auth::user()->user_type == 'hr'){
+            return redirect()->route('hr.reports.summary');
+        }
+        if(Auth::user()->user_type == 'accountant'){
+            return redirect()->route('accounting.reports.summary');
+        }
+        if(Auth::user()->user_type == 'teacher'){
+            return redirect()->route('teacher.dashboard');
+        }
+        if(Auth::user()->user_type == 'student'){
+            return redirect()->route('student.dashboard');
+        }
+        if(Auth::user()->user_type == 'parent'){
+            return redirect()->route('parent.dashboard');
+        }
         return redirect()->route('dashboard');
     }
 
@@ -37,8 +53,24 @@ class HomeController extends Controller
 
     public function dashboard()
     {
+        if(Qs::userIsTeamSA() && Auth::user()->user_type == 'hr'){
+             return redirect()->route('hr.reports.summary');
+        }
+        if(Auth::user()->user_type == 'accountant'){
+            return redirect()->route('accounting.reports.summary');
+        }
+        if(Auth::user()->user_type == 'teacher'){
+            return redirect()->route('teacher.dashboard');
+        }
+        if(Auth::user()->user_type == 'student'){
+            return redirect()->route('student.dashboard');
+        }
+        if(Auth::user()->user_type == 'parent'){
+            return redirect()->route('parent.dashboard');
+        }
+
         $d=[];
-        if(Qs::userIsTeamSAT()){
+        if(Qs::userIsTeamSAT() || Qs::userIsTeamSA()){
             $d['users'] = $this->user->getAll();
         }
 

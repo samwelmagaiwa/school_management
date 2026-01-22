@@ -19,6 +19,7 @@ class GradeController extends Controller
 
         $this->middleware('teamSA', ['except' => ['destroy',] ]);
         $this->middleware('super_admin', ['only' => ['destroy',] ]);
+        $this->middleware('can:exam.manage')->except(['destroy']);
     }
 
     public function index()

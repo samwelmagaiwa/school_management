@@ -1,3 +1,8 @@
+{{--Human Resource Reports--}}
+<li class="nav-item">
+    <a href="{{ route('hr.reports.summary') }}" class="nav-link {{ Route::is('hr.reports.summary') ? 'active' : '' }}"><i class="icon-stats-bars"></i> <span>HR Reports</span></a>
+</li>
+
 {{--Library--}}
 <li class="nav-item nav-item-submenu {{ \Illuminate\Support\Str::startsWith(Route::currentRouteName(), 'library.') ? 'nav-item-expanded nav-item-open' : '' }}">
     <a href="#" class="nav-link"><i class="icon-books"></i> <span>Library</span></a>

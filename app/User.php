@@ -111,6 +111,11 @@ class User extends Authenticatable
         return $this->hasMany(StaffRecord::class);
     }
 
+    public function staff_record()
+    {
+        return $this->hasOne(StaffRecord::class);
+    }
+
     public function user_type_rec()
     {
         return $this->belongsTo(\App\Models\UserType::class, 'user_type', 'title');

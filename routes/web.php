@@ -19,10 +19,62 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/change_password', 'MyAccountController@change_pass')->name('my_account.change_pass');
     });
 
+    /*************** Human Resource *****************/
+    Route::group(['namespace' => 'HumanResource', 'prefix' => 'human_resource', 'middleware' => 'teamSA'], function(){
+        Route::resource('staff', 'StaffController', ['as' => 'hr']);
+
+        Route::group(['prefix' => 'attendance', 'as' => 'hr.attendance.'], function(){
+            Route::get('/', 'StaffAttendanceController@index')->name('index');
+            Route::post('/store', 'StaffAttendanceController@store')->name('store');
+            Route::get('/my_attendance', 'StaffAttendanceController@my_attendance')->name('my')->withoutMiddleware('teamSA'); // Allow staff to view their own
+        });
+
+        Route::group(['prefix' => 'leaves', 'as' => 'hr.leaves.'], function(){
+            Route::get('/', 'LeaveRequestController@index')->name('index')->withoutMiddleware('teamSA'); // Accessible by staff too
+            Route::get('/create', 'LeaveRequestController@create')->name('create')->withoutMiddleware('teamSA');
+            Route::post('/', 'LeaveRequestController@store')->name('store')->withoutMiddleware('teamSA');
+            Route::put('/{id}', 'LeaveRequestController@update')->name('update'); // Admin approval
+        });
+
+        Route::group(['prefix' => 'payroll', 'as' => 'hr.payroll.'], function(){
+            Route::get('/', 'PayrollController@index')->name('index');
+            Route::get('/export', 'PayrollController@export')->name('export');
+        });
+
+        Route::group(['prefix' => 'reports', 'as' => 'hr.reports.'], function(){
+            Route::get('/summary', 'HrReportController@summary')->name('summary');
+        });
+
+        Route::resource('salary/payment', 'PayrollController')->only(['index', 'store', 'show', 'update', 'destroy'])->names('hr.payroll');
+        
+        // Departments & Designations
+        Route::get('departments', 'DepartmentController@index')->name('hr.departments.index');
+        Route::post('departments', 'DepartmentController@store')->name('hr.departments.store');
+        Route::post('designations', 'DepartmentController@storeDesignation')->name('hr.designations.store');
+    });
+
+    /*************** Accounting Dashboard *****************/
+    Route::group(['namespace' => 'Accounting', 'prefix' => 'accounting'], function(){
+        Route::group(['prefix' => 'reports', 'as' => 'accounting.reports.'], function(){
+            Route::get('/summary', 'AccountingReportController@summary')->name('summary');
+        });
+    });
+
+    /*************** Teacher Dashboard *****************/
+    Route::group(['namespace' => 'Teacher', 'prefix' => 'teacher'], function(){
+        Route::get('/dashboard', 'DashboardController@index')->name('teacher.dashboard');
+    });
+
     /*************** Support Team *****************/
     // Student self-service routes
     Route::group(['namespace' => 'Student'], function () {
         Route::get('/my_attendance', 'AttendanceController@index')->name('student.attendance');
+        Route::get('/student/dashboard', 'DashboardController@index')->name('student.dashboard');
+    });
+
+    // Parent self-service routes
+    Route::group(['namespace' => 'MyParent'], function () {
+        Route::get('/parent/dashboard', 'DashboardController@index')->name('parent.dashboard');
     });
 
     Route::group(['namespace' => 'SupportTeam',], function(){
@@ -241,6 +293,10 @@ Route::group(['middleware' => 'auth'], function () {
         
         Route::resource('users', 'UserController');
         Route::post('classes/batch', 'MyClassController@batch_store')->name('classes.batch_store');
+
+
+        // Reports
+        Route::resource('subjects', 'SubjectController');
         Route::resource('classes', 'MyClassController');
         Route::resource('sections', 'SectionController');
         Route::resource('subjects', 'SubjectController');

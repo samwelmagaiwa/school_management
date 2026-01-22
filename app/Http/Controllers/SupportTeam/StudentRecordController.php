@@ -28,6 +28,9 @@ class StudentRecordController extends Controller
        $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
        $this->middleware('super_admin', ['only' => ['destroy',] ]);
 
+       $this->middleware('can:student.admit')->only(['create', 'store', 'import']);
+       $this->middleware('can:student.graduate')->only(['graduated', 'not_graduated']);
+
         $this->loc = $loc;
         $this->my_class = $my_class;
         $this->user = $user;

@@ -18,6 +18,7 @@ class UserTypesTableSeeder extends Seeder
             ['title' => 'hostel_officer', 'name' => 'Hostel Officer', 'level' => 5],
             ['title' => 'accountant', 'name' => 'Accountant', 'level' => 5],
             ['title' => 'parent', 'name' => 'Parent', 'level' => 4],
+            ['title' => 'student', 'name' => 'Student', 'level' => 3],
             ['title' => 'teacher', 'name' => 'Teacher', 'level' => 3],
             ['title' => 'admin', 'name' => 'Admin', 'level' => 2],
             ['title' => 'super_admin', 'name' => 'Super Admin', 'level' => 1],

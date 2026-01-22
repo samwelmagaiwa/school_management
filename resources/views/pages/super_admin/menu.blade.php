@@ -7,6 +7,11 @@
     <a href="{{ route('settings') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['settings',]) ? 'active' : '' }}"><i class="icon-gear"></i> <span>Settings</span></a>
 </li>
 
+{{--Human Resource Reports--}}
+<li class="nav-item">
+    <a href="{{ route('hr.reports.summary') }}" class="nav-link {{ Route::is('hr.reports.summary') ? 'active' : '' }}"><i class="icon-stats-bars"></i> <span>HR Reports</span></a>
+</li>
+
 {{--Library--}}
 <li class="nav-item nav-item-submenu {{ Str::startsWith(Route::currentRouteName(), 'library.') ? 'nav-item-expanded nav-item-open' : '' }}">
     <a href="#" class="nav-link"><i class="icon-books"></i> <span>Library</span></a>
