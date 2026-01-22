@@ -14,7 +14,8 @@ return new class extends Migration
         if (!Schema::hasTable('staff_attendances')) {
             Schema::create('staff_attendances', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('staff_id')->constrained('users')->cascadeOnDelete();
+                $table->unsignedInteger('staff_id');
+                $table->foreign('staff_id')->references('id')->on('users')->cascadeOnDelete();
                 $table->date('date');
                 $table->time('clock_in_time')->nullable();
                 $table->time('clock_out_time')->nullable();
@@ -22,7 +23,8 @@ return new class extends Migration
                 $table->text('remarks')->nullable();
                 $table->boolean('is_late')->default(false);
                 $table->boolean('is_early_departure')->default(false);
-                $table->foreignId('recorded_by')->nullable()->constrained('users')->nullOnDelete(); // ID of admin if manual entry
+                $table->unsignedInteger('recorded_by')->nullable();
+                $table->foreign('recorded_by')->references('id')->on('users')->nullOnDelete();
                 $table->timestamps();
 
                 $table->unique(['staff_id', 'date']);

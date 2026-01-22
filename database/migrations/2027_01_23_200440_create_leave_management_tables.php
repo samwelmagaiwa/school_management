@@ -23,7 +23,8 @@ return new class extends Migration
         if (!Schema::hasTable('leave_requests')) {
             Schema::create('leave_requests', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('staff_id')->constrained('users')->cascadeOnDelete(); // User ID of the staff
+                $table->unsignedInteger('staff_id');
+                $table->foreign('staff_id')->references('id')->on('users')->cascadeOnDelete();
                 $table->foreignId('leave_type_id')->constrained('leave_types')->cascadeOnDelete();
                 $table->date('start_date');
                 $table->date('end_date');
@@ -31,9 +32,11 @@ return new class extends Migration
                 $table->text('reason')->nullable();
                 $table->string('attachment')->nullable();
                 $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-                $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->unsignedInteger('approved_by')->nullable();
+                $table->foreign('approved_by')->references('id')->on('users')->nullOnDelete();
                 $table->datetime('approved_at')->nullable();
-                $table->foreignId('rejected_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->unsignedInteger('rejected_by')->nullable();
+                $table->foreign('rejected_by')->references('id')->on('users')->nullOnDelete();
                 $table->datetime('rejected_at')->nullable();
                 $table->text('rejection_reason')->nullable();
                 $table->timestamps();
