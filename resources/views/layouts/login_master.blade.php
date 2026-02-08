@@ -13,7 +13,7 @@
 </head>
 
 <body>
-@include('partials.login.header')
+    {{-- @include('partials.login.header') --}}
 @yield('content')
 @include('partials.login.footer')
 

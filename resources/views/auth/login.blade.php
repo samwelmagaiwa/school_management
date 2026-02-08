@@ -273,7 +273,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 1.5rem;
     background: white;
     box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
     z-index: 2;
@@ -290,33 +290,33 @@ body, html {
 }
 
 .login-card .card-body {
-    padding: 2rem 0;
+    padding: 2.5rem 0 1rem 0;
 }
 
 .brand-logo {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .brand-icon {
-    width: 75px;
-    height: 75px;
+    width: 60px;
+    height: 60px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
 .login-title {
-    font-size: 1.9rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: #2d3748;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .login-subtitle {
@@ -325,7 +325,7 @@ body, html {
 }
 
 .form-control {
-    height: 50px;
+    height: 42px;
     border-radius: 10px;
     border: 2px solid #e2e8f0;
     padding: 0 1.25rem;
@@ -339,7 +339,7 @@ body, html {
 }
 
 .btn-primary {
-    height: 50px;
+    height: 42px;
     border-radius: 10px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
@@ -399,6 +399,9 @@ body, html {
         grid-template-columns: 1fr;
     }
 }
+    .form-group {
+        margin-bottom: 0.8rem;
+    }
 </style>
 
 <div class="login-container">
@@ -593,11 +596,11 @@ body, html {
             <div class="card login-card">
                 <div class="card-body">
                     <div class="brand-logo">
-                        <div class="brand-icon">
-                            <i class="icon-graduation2"></i>
-                        </div>
                         <h1 class="login-title">Welcome Back</h1>
                         <p class="login-subtitle">Sign in to continue to your dashboard</p>
+                        <div class="brand-icon" style="margin-top: 2rem; margin-bottom: 0;">
+                            <i class="icon-graduation2"></i>
+                        </div>
                     </div>
 
                     {{-- Success Message (Logout, etc) --}}
