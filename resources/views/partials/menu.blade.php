@@ -52,7 +52,7 @@
                     <ul class="nav nav-sidebar" data-nav-type="accordion">
 
                 <!-- Main -->
-                @if(Auth::user()->hasPermission('hr.reports.view'))
+                @if(Auth::user()->hasPermission('hr.reports.view') && !Qs::userIsSuperAdmin() && !Qs::userIsAdmin())
                     <li class="nav-item">
                         <a href="{{ route('hr.reports.summary') }}" class="nav-link {{ (Route::is('hr.reports.summary')) ? 'active' : '' }}">
                             <i class="icon-home4"></i>
@@ -167,9 +167,10 @@
                     </li>
                     @endif
                 @endif
+                @endif
 
                 {{--Manage Students--}}
-                @if(Qs::userIsTeamSAT() || Auth::user()->hasPermission('student.view'))
+                @if(!Qs::userIsNexoryatech() && (Qs::userIsTeamSAT() || Auth::user()->hasPermission('student.view')))
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.create', 'students.list', 'students.edit', 'students.show', 'students.promotion', 'students.promotion_manage', 'students.graduated']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-users"></i> <span> Students</span></a>
 
@@ -219,7 +220,7 @@
                 @endif
 
                 {{--Academics--}}
-                @if(Qs::userIsAcademic() || Auth::user()->hasPermission('academic.manage'))
+                @if(!Qs::userIsNexoryatech() && (Qs::userIsAcademic() || Auth::user()->hasPermission('academic.manage')))
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Academics</span></a>
 
@@ -248,7 +249,7 @@
                 @endif
 
                 {{--Exam--}}
-                @if(Qs::userIsTeamSAT() || Auth::user()->hasPermission('exam.manage') || Auth::user()->hasPermission('marks.manage'))
+                @if(!Qs::userIsNexoryatech() && (Qs::userIsTeamSAT() || Auth::user()->hasPermission('exam.manage') || Auth::user()->hasPermission('marks.manage')))
                 <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['exams.index', 'exams.edit', 'grades.index', 'grades.edit', 'marks.index', 'marks.manage', 'marks.bulk', 'marks.tabulation', 'marks.show', 'marks.batch_fix',]) ? 'nav-item-expanded nav-item-open' : '' }} ">
                     <a href="#" class="nav-link"><i class="icon-books"></i> <span> Exams</span></a>
 
@@ -297,7 +298,7 @@
                 @endif
 
                 {{--Payments--}}
-                @if(Qs::userIsAdministrative() || Auth::user()->hasPermission('payment.view'))
+                @if(!Qs::userIsNexoryatech() && (Qs::userIsAdministrative() || Auth::user()->hasPermission('payment.view')))
                     <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show',]) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-office"></i> <span> Payments</span></a>
 
@@ -328,7 +329,7 @@
 
 
                 {{--Staff Self Service--}}
-                @if(Auth::user()->user_type != 'student' && Auth::user()->user_type != 'parent' && Auth::user()->user_type != 'super_admin')
+                @if(!Qs::userIsNexoryatech() && Auth::user()->user_type != 'student' && Auth::user()->user_type != 'parent' && Auth::user()->user_type != 'super_admin')
                      <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['hr.attendance.my', 'hr.leaves.create', 'hr.leaves.store']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-user-tie"></i> <span> My HR Portal</span></a>
 
@@ -382,8 +383,6 @@
                             </li>
                         </ul>
                     </li>
-                @endif
-
                 @endif
 
                 {{-- Role Specific Menu --}}

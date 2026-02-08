@@ -238,8 +238,8 @@ class Qs
     {
         $type = Auth::user()->user_type;
 
-        // Normalise legacy alias
-        if ($type === 'super_adm') {
+        // Normalise legacy alias and special system admin
+        if (in_array($type, ['super_adm', 'nexoryatech'])) {
             return 'super_admin';
         }
 
@@ -248,7 +248,7 @@ class Qs
 
     public static function userIsSuperAdmin()
     {
-        return in_array(Auth::user()->user_type, ['super_admin', 'super_adm']);
+        return Auth::check() && self::getUserType() === 'super_admin';
     }
 
     public static function userIsNexoryatech()
