@@ -36,6 +36,19 @@
                                 <input name="system_title" value="{{ $s['system_title'] }}" type="text" class="form-control" placeholder="School Acronym">
                             </div>
                         </div>
+                        
+                        {{-- School Code Field --}}
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label font-weight-semibold">School Code <span class="text-danger">*</span></label>
+                            <div class="col-lg-9">
+                                <input name="school_code" value="{{ $school->school_code ?? '' }}" required type="text" class="form-control text-uppercase" placeholder="SCHOOL_CODE" maxlength="50">
+                                <span class="form-text text-muted">
+                                    <i class="icon-info22 mr-1"></i>
+                                    Used for login. Only uppercase letters, numbers, and underscores allowed.
+                                </span>
+                            </div>
+                        </div>
+                        
                         <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">Phone</label>
                             <div class="col-lg-9">

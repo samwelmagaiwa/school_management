@@ -29,7 +29,15 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>School Code:</label>
+                                <input type="text" class="form-control bg-light" value="{{ $user->school->school_code ?? 'N/A' }}" readonly disabled>
+                                <small class="form-text text-muted">Cannot be changed</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label for="secondary_roles">Secondary Roles:</label>
                                 <select multiple class="form-control select" name="secondary_roles[]" id="secondary_roles">
@@ -40,7 +48,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Full Name: <span class="text-danger">*</span></label>
                                 <input value="{{ $user->name }}" required type="text" name="name" placeholder="Full Name" class="form-control">

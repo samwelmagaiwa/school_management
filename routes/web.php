@@ -504,6 +504,20 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 
+/************************ NEXORYATECH (System Admin) ****************************/
+Route::group(['namespace' => 'Nexoryatech', 'middleware' => 'nexoryatech', 'prefix' => 'nexoryatech'], function(){
+    
+    // School Management
+    Route::get('/schools', 'SchoolController@index')->name('nexoryatech.schools.index');
+    Route::get('/schools/create', 'SchoolController@create')->name('nexoryatech.schools.create');
+    Route::post('/schools', 'SchoolController@store')->name('nexoryatech.schools.store');
+    Route::get('/schools/{id}/edit', 'SchoolController@edit')->name('nexoryatech.schools.edit');
+    Route::put('/schools/{id}', 'SchoolController@update')->name('nexoryatech.schools.update');
+    Route::post('/schools/{id}/toggle-status', 'SchoolController@toggleStatus')->name('nexoryatech.schools.toggle_status');
+    Route::get('/schools/{id}', 'SchoolController@show')->name('nexoryatech.schools.show');
+    
+});
+
 /************************ SUPER ADMIN ****************************/
 Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix' => 'super_admin'], function(){
 

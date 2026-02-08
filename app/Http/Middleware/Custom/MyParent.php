@@ -17,6 +17,20 @@ class MyParent
      */
     public function handle($request, Closure $next)
     {
-        return (Auth::check() && Qs::userIsParent()) ? $next($request) : redirect()->route('login');
+        // Check if authenticated AND session is valid
+        if (!Auth::check() || !$request->session()->has('_token')) {
+            Auth::logout();
+            $request->session()->invalidate();
+            return redirect()->route('login')
+                ->with('error', 'Your session has expired. Please login again.');
+        }
+
+        // Check Parent role
+        if (!Qs::userIsParent()) {
+            return redirect()->route('home')
+                ->with('error', 'Unauthorized access.');
+        }
+
+        return $next($request);
     }
 }

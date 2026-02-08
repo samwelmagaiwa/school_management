@@ -25,12 +25,41 @@ class SettingController extends Controller
          $d['s'] = $s->flatMap(function($s){
             return [$s->type => $s->description];
         });
+        
+        // Add current school information for SuperAdmin
+        $d['school'] = auth()->user()->school;
+        
         return view('pages.super_admin.settings', $d);
     }
 
     public function update(SettingUpdate $req)
     {
-        $sets = $req->except('_token', '_method', 'logo');
+        // Handle school code update separately
+        if ($req->has('school_code')) {
+            $school = auth()->user()->school;
+            $newSchoolCode = strtoupper(trim($req->school_code));
+            
+            // Validate school code uniqueness (excluding current school)
+            $existingSchool = \App\Models\School::where('school_code', $newSchoolCode)
+                ->where('id', '!=', $school->id)
+                ->first();
+            
+            if ($existingSchool) {
+                return back()->with('flash_danger', 'School code "' . $newSchoolCode . '" is already in use by another school.');
+            }
+            
+            // Validate format (letters, numbers, underscores only)
+            if (!preg_match('/^[A-Z0-9_]+$/', $newSchoolCode)) {
+                return back()->with('flash_danger', 'School code must contain only uppercase letters, numbers, and underscores.');
+            }
+            
+            // Update school code
+            $school->school_code = $newSchoolCode;
+            $school->save();
+        }
+        
+        // Handle system settings updates
+        $sets = $req->except('_token', '_method', 'logo', 'school_code');
         $sets['lock_exam'] = $sets['lock_exam'] == 1 ? 1 : 0;
         $keys = array_keys($sets);
         $values = array_values($sets);

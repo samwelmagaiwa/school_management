@@ -41,6 +41,14 @@
                                     </div>
                                 </div>
 
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>School Code:</label>
+                                        <input type="text" class="form-control bg-light" value="{{ Auth::user()->school->school_code ?? 'N/A' }}" readonly disabled>
+                                        <small class="form-text text-muted">Auto-assigned</small>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Full Name: <span class="text-danger">*</span></label>
@@ -48,7 +56,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Address: <span class="text-danger">*</span></label>
                                         <input value="{{ old('address') }}" class="form-control" placeholder="Address" name="address" type="text" required>

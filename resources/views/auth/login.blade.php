@@ -600,21 +600,44 @@ body, html {
                         <p class="login-subtitle">Sign in to continue to your dashboard</p>
                     </div>
 
-                    @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible" style="border-radius: 10px; border-left: 4px solid #e53e3e;">
-                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-                        <strong>Oops!</strong> {{ implode(' ', $errors->all()) }}
-                    </div>
+                    {{-- Success Message (Logout, etc) --}}
+                    @if(session('status'))
+                        <div class="alert alert-success alert-dismissible" style="border-radius: 10px; border-left: 4px solid #48bb78; margin-bottom: 1rem;">
+                            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                            <i class="icon-checkmark-circle"></i> <strong>Success!</strong> {{ session('status') }}
+                        </div>
                     @endif
+
+                    {{-- Error Message (Session timeout, unauthorized, etc) --}}
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible" style="border-radius: 10px; border-left: 4px solid #e53e3e; margin-bottom: 1rem;">
+                            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                            <i class="icon-cross-circle2"></i> <strong>Error!</strong> {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <div class="form-group">
+                        <label class="font-weight-semibold" style="color: #4a5568; margin-bottom: 0.5rem; font-size: 0.9rem;">School Code</label>
+                        <input type="text" class="form-control" name="school_code" value="{{ old('school_code') }}" placeholder="Enter your school code" autofocus>
+                        @error('school_code')
+                            <span class="text-danger" style="font-size: 0.85rem;">{{ $message }}</span>
+                        @enderror
+                    </div>
 
                     <div class="form-group">
                         <label class="font-weight-semibold" style="color: #4a5568; margin-bottom: 0.5rem; font-size: 0.9rem;">Email or Login ID</label>
                         <input type="text" class="form-control" name="identity" value="{{ old('identity') }}" placeholder="Enter your email or ID" required>
+                        @error('identity')
+                            <span class="text-danger" style="font-size: 0.85rem;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label class="font-weight-semibold" style="color: #4a5568; margin-bottom: 0.5rem; font-size: 0.9rem;">Password</label>
                         <input name="password" type="password" class="form-control" placeholder="Enter your password" required>
+                        @error('password')
+                            <span class="text-danger" style="font-size: 0.85rem;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group d-flex align-items-center">

@@ -34,6 +34,41 @@
                 height: calc(100vh - 3.5rem);
             }
         }
+
+        /* Dynamic School Theme Application */
+        @php
+            $currentSchool = \App\Support\SchoolContext::school();
+            $themeColor = $currentSchool->settings['theme_color'] ?? null;
+        @endphp
+
+        @if($themeColor)
+            .navbar {
+                background-color: {{ $themeColor }} !important;
+            }
+            .sidebar .nav-sidebar .nav-link.active,
+            .sidebar .nav-sidebar .nav-link.active:hover,
+            .sidebar .nav-sidebar .nav-link.active:focus {
+                background-color: {{ $themeColor }} !important;
+                color: #fff !important;
+            }
+            .btn-primary {
+                background-color: {{ $themeColor }} !important;
+                border-color: {{ $themeColor }} !important;
+            }
+            .text-primary {
+                color: {{ $themeColor }} !important;
+            }
+            .page-item.active .page-link {
+                background-color: {{ $themeColor }} !important;
+                border-color: {{ $themeColor }} !important;
+            }
+            .border-primary {
+                border-color: {{ $themeColor }} !important;
+            }
+            .bg-primary {
+                background-color: {{ $themeColor }} !important;
+            }
+        @endif
     </style>
     @stack('styles')
 </head>

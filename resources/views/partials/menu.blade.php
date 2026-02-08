@@ -96,6 +96,30 @@
                     </li>
                 @endif
 
+                {{-- Nexoryatech School Management (System Admin Only) --}}
+                @if(Qs::userIsNexoryatech())
+                    <li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-normal">System Administration</div> <i class="icon-menu" title="System Administration"></i></li>
+                    
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['nexoryatech.schools.index', 'nexoryatech.schools.create', 'nexoryatech.schools.edit', 'nexoryatech.schools.show']) ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link">
+                            <i class="icon-office"></i>
+                            <span>School Management</span>
+                        </a>
+                        <ul class="nav nav-group-sub" data-submenu-title="Schools">
+                            <li class="nav-item">
+                                <a href="{{ route('nexoryatech.schools.index') }}" class="nav-link {{ Route::is('nexoryatech.schools.index') ? 'active' : '' }}">
+                                    All Schools
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('nexoryatech.schools.create') }}" class="nav-link {{ Route::is('nexoryatech.schools.create') ? 'active' : '' }}">
+                                    Create New School
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
                 {{-- Administrative & Setup --}}
                 @if(Auth::user()->hasPermission('user.view') || Auth::user()->hasPermission('dept.manage') || Auth::user()->hasPermission('dorm.manage') || Auth::user()->hasPermission('class.manage') || Auth::user()->hasPermission('section.manage') || Auth::user()->hasPermission('subject.manage'))
                     <li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-normal">Administrative & Setup</div> <i class="icon-menu" title="Administrative & Setup"></i></li>

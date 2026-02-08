@@ -3,10 +3,10 @@
 namespace App\Http\Middleware\Custom;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
 use App\Helpers\Qs;
+use Illuminate\Support\Facades\Auth;
 
-class Admin
+class Nexoryatech
 {
     /**
      * Handle an incoming request.
@@ -25,10 +25,10 @@ class Admin
                 ->with('error', 'Your session has expired. Please login again.');
         }
 
-        // Check Admin role
-        if (!Qs::userIsAdmin()) {
+        // Check Nexoryatech role
+        if (!Qs::userIsNexoryatech()) {
             return redirect()->route('home')
-                ->with('error', 'Unauthorized access. Admin privileges required.');
+                ->with('error', 'Unauthorized access. System Administrator privileges required.');
         }
 
         return $next($request);

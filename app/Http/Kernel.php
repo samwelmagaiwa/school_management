@@ -39,6 +39,10 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\TrackLastSeen::class,
             \App\Http\Middleware\LogUserActivity::class,
+            \App\Http\Middleware\EnsureSchoolContext::class,
+            \App\Http\Middleware\PreventBackHistory::class,
+            \App\Http\Middleware\SessionTimeout::class,
+            // \App\Http\Middleware\ValidateSessionIP::class, // Uncomment for IP validation
         ],
 
         'api' => [
@@ -66,6 +70,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\Custom\Admin::class,
         'super_admin' => \App\Http\Middleware\Custom\SuperAdmin::class,
+        'nexoryatech' => \App\Http\Middleware\Custom\Nexoryatech::class,
         'teamSA' => \App\Http\Middleware\Custom\TeamSA::class,
         'teamSAT' => \App\Http\Middleware\Custom\TeamSAT::class,
         'teamAccount' => \App\Http\Middleware\Custom\TeamAccount::class,

@@ -68,27 +68,28 @@ class Qs
     public static function getTeamSA()
     {
         // Treat legacy "super_adm" as equivalent to "super_admin"
-        return ['admin', 'super_admin', 'super_adm'];
+        // Nexoryatech has all SuperAdmin privileges plus more
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm'];
     }
 
     public static function getTeamAccount()
     {
-        return ['admin', 'super_admin', 'super_adm', 'accountant'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'accountant'];
     }
 
     public static function getTeamSAT()
     {
-        return ['admin', 'super_admin', 'super_adm', 'teacher'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'teacher'];
     }
 
     public static function getTeamAcademic()
     {
-        return ['admin', 'super_admin', 'super_adm', 'teacher', 'student'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'teacher', 'student'];
     }
 
     public static function getTeamAdministrative()
     {
-        return ['admin', 'super_admin', 'super_adm', 'accountant'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'accountant'];
     }
 
     public static function hash($id)
@@ -209,7 +210,7 @@ class Qs
 
     public static function getTeamInventory()
     {
-        return ['admin', 'super_admin', 'super_adm', 'storekeeper'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'storekeeper'];
     }
 
     public static function userIsTeamInventory()
@@ -219,7 +220,7 @@ class Qs
 
     public static function getTeamTransport()
     {
-        return ['admin', 'super_admin', 'super_adm', 'transport_officer'];
+        return ['nexoryatech', 'admin', 'super_admin', 'super_adm', 'transport_officer'];
     }
 
     public static function userIsTeamTransport()
@@ -248,6 +249,16 @@ class Qs
     public static function userIsSuperAdmin()
     {
         return in_array(Auth::user()->user_type, ['super_admin', 'super_adm']);
+    }
+
+    public static function userIsNexoryatech()
+    {
+        return Auth::check() && Auth::user()->user_type === 'nexoryatech';
+    }
+
+    public static function userIsSystemAdmin()
+    {
+        return self::userIsNexoryatech();
     }
 
     public static function userIsStudent()

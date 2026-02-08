@@ -6,9 +6,12 @@ use App\Helpers\Qs;
 use App\Models\BloodGroup;
 use App\Models\Lga;
 use App\Models\Nationality;
+use App\Models\School;
 use App\Models\StaffRecord;
 use App\Models\State;
 use App\Models\StudentRecord;
+use App\Support\SchoolContext;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -27,7 +30,27 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-'name', 'username', 'email', 'phone', 'phone2', 'dob', 'gender', 'photo', 'address', 'ward', 'street', 'bg_id', 'password', 'nal_id', 'state_id', 'lga_id', 'code', 'user_type', 'email_verified_at', 'last_seen_at'
+        'name',
+        'username',
+        'email',
+        'phone',
+        'phone2',
+        'dob',
+        'gender',
+        'photo',
+        'address',
+        'ward',
+        'street',
+        'bg_id',
+        'password',
+        'nal_id',
+        'state_id',
+        'lga_id',
+        'code',
+        'user_type',
+        'email_verified_at',
+        'last_seen_at',
+        'school_id',
     ];
 
     /**
@@ -36,12 +59,34 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
         'last_seen_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('current_school', function (Builder $builder) {
+            $schoolId = SchoolContext::id();
+
+            if ($schoolId) {
+                $builder->where('school_id', $schoolId);
+            }
+        });
+    }
+
+    public function scopeForSchool(Builder $query, ?int $schoolId): Builder
+    {
+        return $schoolId ? $query->where('school_id', $schoolId) : $query;
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 
     public function getPhotoAttribute($value)
     {

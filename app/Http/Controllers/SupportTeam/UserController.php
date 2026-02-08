@@ -83,6 +83,9 @@ class UserController extends Controller
         $data['user_type'] = $user_type;
         $data['photo'] = null;  // Will fall back to default via accessor
         $data['code'] = strtoupper(Str::random(10));
+        
+        // Auto-capture school_id from authenticated admin/SA
+        $data['school_id'] = Auth::user()->school_id;
 
         $user_is_staff = in_array($user_type, Qs::getStaff());
         $user_is_teamSA = in_array($user_type, Qs::getTeamSA());
