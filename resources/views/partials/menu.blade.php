@@ -120,6 +120,7 @@
                     </li>
                 @endif
 
+                @if(!Qs::userIsNexoryatech())
                 {{-- Administrative & Setup --}}
                 @if(Auth::user()->hasPermission('user.view') || Auth::user()->hasPermission('dept.manage') || Auth::user()->hasPermission('dorm.manage') || Auth::user()->hasPermission('class.manage') || Auth::user()->hasPermission('section.manage') || Auth::user()->hasPermission('subject.manage'))
                     <li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-normal">Administrative & Setup</div> <i class="icon-menu" title="Administrative & Setup"></i></li>
@@ -381,6 +382,8 @@
                             </li>
                         </ul>
                     </li>
+                @endif
+
                 @endif
 
                 {{-- Role Specific Menu --}}
